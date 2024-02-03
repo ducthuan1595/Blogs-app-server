@@ -9,6 +9,10 @@ const schema = new mongoose_1.default.Schema({
         type: String,
         require: true
     },
+    slogan: {
+        type: String,
+        require: true
+    },
     image: {
         url: {
             type: String,

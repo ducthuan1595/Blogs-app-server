@@ -5,6 +5,10 @@ const schema = new mongoose.Schema({
     type: String,
     require: true
   },
+  slogan: {
+    type: String,
+    require: true
+  },
   image: {
     url: {
       type: String,

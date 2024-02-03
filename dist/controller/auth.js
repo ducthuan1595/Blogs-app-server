@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signup = exports.login = void 0;
+exports.signup = exports.loginAdmin = exports.login = void 0;
 const auth_1 = require("../service/auth");
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
@@ -22,6 +22,17 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.login = login;
+const loginAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(404).json({ message: "Not found" });
+    }
+    const data = yield (0, auth_1.loginAdminService)(email, password);
+    if (data) {
+        res.status(data.status).json({ message: data.message, data: data.data });
+    }
+});
+exports.loginAdmin = loginAdmin;
 const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password, username } = req.body;
     if (!email || !password || !username) {

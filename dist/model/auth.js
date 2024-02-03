@@ -16,7 +16,7 @@ const schema = new mongoose_1.default.Schema({
     },
     role: {
         type: String,
-        default: 'D0'
+        default: 'F0'
     },
     password: {
         type: String,

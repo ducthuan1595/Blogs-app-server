@@ -12,7 +12,7 @@ const schema = new mongoose.Schema({
   },
   role: {
     type: String,
-    default: 'D0'
+    default: 'F0'
   },
   password: {
     type: String,

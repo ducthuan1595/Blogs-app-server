@@ -16,13 +16,14 @@ export type UserType = {
   // password: string;
   role: string;
   photo: ImageType;
-  createdAt: NativeDate;
-  updatedAt: NativeDate;
+  createdAt?: NativeDate;
+  updatedAt?: NativeDate;
 };
 
 export type CategoryType = {
   _id: string;
   name: string;
+  slogan: string;
   image: ImageType;
   createdAt: NativeDate;
   updatedAt: NativeDate;

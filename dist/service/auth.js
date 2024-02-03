@@ -12,9 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerServer = exports.loginService = void 0;
-const auth_1 = __importDefault(require("../model/auth"));
+exports.registerServer = exports.loginAdminService = exports.loginService = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const createToken_1 = __importDefault(require("../support/createToken"));
+const auth_1 = __importDefault(require("../model/auth"));
 const loginService = (email, password) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield auth_1.default.findOne({ email: email });
@@ -32,10 +33,14 @@ const loginService = (email, password) => __awaiter(void 0, void 0, void 0, func
             };
         }
         user.password = '';
+        const data = {
+            user,
+            token: (0, createToken_1.default)(user._id.toString())
+        };
         return {
             status: 201,
-            message: 'ok',
-            data: user
+            message: "ok",
+            data: data,
         };
     }
     catch (err) {
@@ -46,6 +51,41 @@ const loginService = (email, password) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.loginService = loginService;
+const loginAdminService = (email, password) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield auth_1.default.findOne({ email: email });
+        if (!user || user.role !== 'F2') {
+            return {
+                status: 403,
+                message: "Unauthorized",
+            };
+        }
+        const validPw = yield bcrypt_1.default.compare(password, user.password);
+        if (!validPw) {
+            return {
+                status: 401,
+                message: "Password is incorrect",
+            };
+        }
+        user.password = "";
+        const data = {
+            user,
+            token: (0, createToken_1.default)(user._id.toString()),
+        };
+        return {
+            status: 201,
+            message: "ok",
+            data: data,
+        };
+    }
+    catch (err) {
+        return {
+            status: 500,
+            message: "Error from server",
+        };
+    }
+});
+exports.loginAdminService = loginAdminService;
 const registerServer = (email, password, username) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield auth_1.default.findOne({ email: email });
