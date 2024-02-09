@@ -6,8 +6,16 @@ import {
   getPostByCategory,
   getPostByUser,
   getPost,
+  updatePost,
+  createPost,
+  deletePost,
 } from "../controller/post";
-import { getCategories, updateCategory } from "../controller/category";
+import {
+  getCategories,
+  updateCategory,
+  createCategory,
+  deleteCategory,
+} from "../controller/category";
 import authentication from "../middleware/authentication";
 
 const router = express.Router();
@@ -27,40 +35,36 @@ const init = (app: Express) => {
     getPostByUser
   );
   // router.get("/v1/api/search", postController.searchPost);
-  // router.post(
-  //   "/v1/api/create-post",
-  //   authMiddware.protect,
-  //   postController.createPost
-  // );
-  // router.put(
-  //   "/v1/api/update-post",
-  //   authMiddware.protect,
-  //   postController.updatePost
-  // );
-  // router.delete(
-  //   "/v1/api/delete-post",
-  //   authMiddware.protect,
-  //   postController.deletePost
-  // );
+  router.post("/v1/api/create-post", authentication, createPost);
+  router.put(
+    "/v1/api/update-post",
+    authentication,
+    updatePost
+  );
+  router.delete(
+    "/v1/api/delete-post",
+    authentication,
+    deletePost
+  );
   router.get("/v1/api/post", getPost);
 
   // // Category
   router.get("/v1/api/category", getCategories);
-  // router.post(
-  //   "/v1/api/create-category",
-  //   authMiddware.protect,
-  //   categoryController.createCategory
-  // );
+  router.post(
+    "/v1/api/create-category",
+    authentication,
+    createCategory
+  );
   router.put(
     "/v1/api/update-category",
     authentication,
     updateCategory
   );
-  // router.delete(
-  //   "/v1/api/delete-category",
-  //   authMiddware.protect,
-  //   categoryController.deleteCategory
-  // );
+  router.delete(
+    "/v1/api/delete-category",
+    authentication,
+    deleteCategory
+  );
 
   return app.use("/", router);
 };

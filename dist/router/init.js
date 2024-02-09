@@ -18,35 +18,15 @@ const init = (app) => {
     router.get("/v1/api/posts-category", post_1.getPostByCategory);
     router.get("/v1/api/posts-user", authentication_1.default, post_1.getPostByUser);
     // router.get("/v1/api/search", postController.searchPost);
-    // router.post(
-    //   "/v1/api/create-post",
-    //   authMiddware.protect,
-    //   postController.createPost
-    // );
-    // router.put(
-    //   "/v1/api/update-post",
-    //   authMiddware.protect,
-    //   postController.updatePost
-    // );
-    // router.delete(
-    //   "/v1/api/delete-post",
-    //   authMiddware.protect,
-    //   postController.deletePost
-    // );
+    router.post("/v1/api/create-post", authentication_1.default, post_1.createPost);
+    router.put("/v1/api/update-post", authentication_1.default, post_1.updatePost);
+    router.delete("/v1/api/delete-post", authentication_1.default, post_1.deletePost);
     router.get("/v1/api/post", post_1.getPost);
     // // Category
     router.get("/v1/api/category", category_1.getCategories);
-    // router.post(
-    //   "/v1/api/create-category",
-    //   authMiddware.protect,
-    //   categoryController.createCategory
-    // );
+    router.post("/v1/api/create-category", authentication_1.default, category_1.createCategory);
     router.put("/v1/api/update-category", authentication_1.default, category_1.updateCategory);
-    // router.delete(
-    //   "/v1/api/delete-category",
-    //   authMiddware.protect,
-    //   categoryController.deleteCategory
-    // );
+    router.delete("/v1/api/delete-category", authentication_1.default, category_1.deleteCategory);
     return app.use("/", router);
 };
 exports.default = init;

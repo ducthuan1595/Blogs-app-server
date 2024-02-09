@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPost = exports.getPostByUser = exports.getPostByCategory = exports.getAllPost = void 0;
+exports.deletePost = exports.createPost = exports.updatePost = exports.getPost = exports.getPostByUser = exports.getPostByCategory = exports.getAllPost = void 0;
 const post_1 = require("../service/post");
 const getAllPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { page, limit } = req.query;
@@ -45,9 +45,46 @@ const getPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!postId) {
         return res.status(404).json({ message: 'Not found' });
     }
-    const data = yield (0, post_1.getPostService)(postId);
+    const data = yield (0, post_1.getPostService)(postId.toString());
     if (data) {
-        return res.status(data.status).json({ message: 'ok', data: data });
+        return res.status(data.status).json({ message: data.message, data: data.data });
     }
 });
 exports.getPost = getPost;
+const updatePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const request = req.body;
+    if (!request.postId || !request.desc || !request.title || !request.categoryId || !req.user) {
+        return res.status(404).json({ message: 'Not found' });
+    }
+    const data = yield (0, post_1.updatePostService)(request, req.user);
+    if (data) {
+        return res.status(data.status).json({ message: data.message });
+    }
+});
+exports.updatePost = updatePost;
+const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const request = req.body;
+    if (!request.desc ||
+        !request.title ||
+        !request.categoryId ||
+        !request.image ||
+        !req.user) {
+        return res.status(404).json({ message: "Not found" });
+    }
+    const data = yield (0, post_1.createPostService)(request, req.user);
+    if (data) {
+        return res.status(data.status).json({ message: data.message });
+    }
+});
+exports.createPost = createPost;
+const deletePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const postId = req.query.postId;
+    if (!postId || !req.user) {
+        return res.status(404).json({ message: 'Not found' });
+    }
+    const data = yield (0, post_1.deletePostService)(postId.toString(), req.user);
+    if (data) {
+        return res.status(data.status).json({ message: data.message });
+    }
+});
+exports.deletePost = deletePost;

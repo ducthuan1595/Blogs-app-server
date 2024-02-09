@@ -11,9 +11,7 @@ const authentication = async (
   req: RequestCustom,
   res: Response,
   next: NextFunction
-) => {
-  console.log(req.headers);
-  
+) => {  
   let token;
   if (
     req.headers.authorization &&

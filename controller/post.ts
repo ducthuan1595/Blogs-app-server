@@ -4,8 +4,12 @@ import {
   getPostByCategoryService,
   getPostByUserService,
   getPostService,
+  updatePostService,
+  createPostService,
+  deletePostService,
 } from "../service/post";
 import { RequestCustom } from "../middleware/authentication";
+import { PostType } from "../types";
 
 export const getAllPost = async(req: Request, res: Response) => {
   const {page, limit} = req.query;
@@ -37,12 +41,52 @@ export const getPostByUser = async(req:RequestCustom, res:Response) => {
 }
 
 export const getPost = async(req: Request, res: Response) => {
-  const postId = req.query.postId;
+  const postId = req.query.postId;  
   if(!postId) {
     return res.status(404).json({message: 'Not found'})
   }
-  const data = await getPostService(postId);
+  const data = await getPostService(postId.toString());
   if(data) {
-    return res.status(data.status).json({message: 'ok', data: data})
+    return res.status(data.status).json({message: data.message, data: data.data})
+  }
+}
+
+export const updatePost = async (req: RequestCustom, res: Response) => {
+  const request = req.body;
+  if(!request.postId || !request.desc || !request.title || !request.categoryId || !req.user) {
+    return res.status(404).json({message: 'Not found'})
+  }
+
+  const data = await updatePostService(request, req.user);
+  if(data) {
+    return res.status(data.status).json({message: data.message})
+  }
+};
+
+export const createPost = async(req: RequestCustom, res: Response) => {
+  const request = req.body;
+  if (
+    !request.desc ||
+    !request.title ||
+    !request.categoryId ||
+    !request.image ||
+    !req.user
+  ) {
+    return res.status(404).json({ message: "Not found" });
+  }
+  const data = await createPostService(request, req.user);
+  if (data) {
+    return res.status(data.status).json({ message: data.message });
+  }
+}
+
+export const deletePost = async(req: RequestCustom, res: Response) => {
+  const postId = req.query.postId;
+  if(!postId || !req.user) {
+    return res.status(404).json({message: 'Not found'})
+  }
+  const data = await deletePostService(postId.toString(), req.user);
+  if(data) {
+    return res.status(data.status).json({message: data.message})
   }
 }

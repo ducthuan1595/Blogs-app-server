@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateCategory = exports.getCategories = void 0;
+exports.deleteCategory = exports.createCategory = exports.updateCategory = exports.getCategories = void 0;
 const category_1 = require("../service/category");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -32,3 +32,27 @@ const updateCategory = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.updateCategory = updateCategory;
+const createCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { name, image, slogan } = req.body;
+    if (!name || !slogan || (image === null || image === void 0 ? void 0 : image.length) || !req.user) {
+        return res.status(400).json({ message: 'Not found' });
+    }
+    const data = yield (0, category_1.createCategoryService)(name, slogan, image, req.user);
+    if (data) {
+        return res.status(data.status).json({ message: data.message, data: data === null || data === void 0 ? void 0 : data.data });
+    }
+});
+exports.createCategory = createCategory;
+const deleteCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const categoryId = req.query.categoryId;
+    if (!categoryId || !req.user) {
+        return res.status(400).json({ message: "Not found" });
+    }
+    const data = yield (0, category_1.deleteCategoryService)(categoryId.toString(), req.user);
+    if (data) {
+        return res
+            .status(data.status)
+            .json({ message: data.message });
+    }
+});
+exports.deleteCategory = deleteCategory;

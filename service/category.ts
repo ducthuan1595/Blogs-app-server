@@ -1,5 +1,6 @@
 import Category from "../model/category";
 import { CategoryType, ImageType, UserType } from "../types";
+import { destroyClodinary } from "../utils/cloudinary";
 
 export const getCategoryService = async () => {
   try{
@@ -30,6 +31,9 @@ export const editCategory = async(categoryId: string, name:string, image: ImageT
       category.name = name;
       category.slogan = slogan;
       if(image) {
+        if(category.image?.public_id) {
+          await destroyClodinary(category.image?.public_id)
+        }
         category.image = image;
       }
       const updated = await category.save();
@@ -47,3 +51,59 @@ export const editCategory = async(categoryId: string, name:string, image: ImageT
     }
   }
 }
+
+export const createCategoryService = async (name: string, slogan: string, image: ImageType, user: UserType) => {
+  try {
+    if(user.role !== 'F2') {
+      return {
+        status: 403,
+        message: 'Unauthorized!'
+      }
+    }
+    const category = new Category({
+      name,
+      slogan,
+      image,
+    })
+    const newCategory = await category.save();
+    return {
+      status: 200,
+      message: "ok",
+      data: newCategory,
+    };
+  } catch (err) {
+    return {
+      status: 500,
+      message: "Error from server",
+    };
+  }
+};
+
+export const deleteCategoryService = async (
+  categoryId: string,
+  user: UserType
+) => {
+  try {
+    const category = await Category.findById(categoryId);
+
+    if (category && user.role !== "F2") {
+      if(category.image?.public_id) {
+        await destroyClodinary(category.image?.public_id)
+      }
+      return {
+        status: 302,
+        message: "Unauthorized",
+      };
+    }
+    await Category.findByIdAndDelete(categoryId);
+    return {
+      status: 200,
+      message: 'ok'
+    }
+  } catch (err) {
+    return {
+      status: 500,
+      message: "Error from server",
+    };
+  }
+};

@@ -2,9 +2,9 @@ export type PostType = {
   _id: string;
   title: string;
   userId: UserType;
-  categoryId: CategoryType;
+  categoryId: CategoryType | string;
   description: string;
-  images: ImageType[];
+  image: ImageType[];
   createdAt: NativeDate;
   updatedAt: NativeDate;
 };

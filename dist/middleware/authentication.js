@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const auth_1 = __importDefault(require("../model/auth"));
 const authentication = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.headers);
     let token;
     if (req.headers.authorization &&
         req.headers.authorization.startsWith("Bearer")) {
