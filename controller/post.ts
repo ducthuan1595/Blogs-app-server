@@ -7,6 +7,7 @@ import {
   updatePostService,
   createPostService,
   deletePostService,
+  searchPostService,
 } from "../service/post";
 import { RequestCustom } from "../middleware/authentication";
 import { PostType } from "../types";
@@ -88,5 +89,16 @@ export const deletePost = async(req: RequestCustom, res: Response) => {
   const data = await deletePostService(postId.toString(), req.user);
   if(data) {
     return res.status(data.status).json({message: data.message})
+  }
+}
+
+export const searchPost = async (req: Request, res: Response) => {
+  const search = req.query.search;
+  if(!search) {
+    return res.status(400).json({message: 'Not found'})
+  }
+  const data = await searchPostService(search.toString());
+  if(data) {
+    return res.status(data.status).json({message: data.message, data: data.data})
   }
 }

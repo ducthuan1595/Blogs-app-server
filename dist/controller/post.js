@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deletePost = exports.createPost = exports.updatePost = exports.getPost = exports.getPostByUser = exports.getPostByCategory = exports.getAllPost = void 0;
+exports.searchPost = exports.deletePost = exports.createPost = exports.updatePost = exports.getPost = exports.getPostByUser = exports.getPostByCategory = exports.getAllPost = void 0;
 const post_1 = require("../service/post");
 const getAllPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { page, limit } = req.query;
@@ -88,3 +88,14 @@ const deletePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.deletePost = deletePost;
+const searchPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const search = req.query.search;
+    if (!search) {
+        return res.status(400).json({ message: 'Not found' });
+    }
+    const data = yield (0, post_1.searchPostService)(search.toString());
+    if (data) {
+        return res.status(data.status).json({ message: data.message, data: data.data });
+    }
+});
+exports.searchPost = searchPost;

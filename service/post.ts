@@ -181,3 +181,32 @@ export const deletePostService = async(postId: string, user: UserType) => {
     }
   }
 }
+
+export const searchPostService = async (search: string) => {
+  try{
+    const keyword = search ? {
+      $or: [
+        {
+          title: {
+            $regex: search,
+            $options: 'i'
+          }
+        }
+      ]
+    } : {};
+    const posts = await Post.find(keyword).populate('userId', '-password').populate('categoryId').limit(10).lean();
+  
+    if(posts) {
+      return {
+        status: 201,
+        message: 'ok',
+        data: posts
+      }
+    }
+  }catch(err) {
+    return {
+      status: 500,
+      message: 'Error from server'
+    }
+  }
+}

@@ -9,6 +9,7 @@ import {
   updatePost,
   createPost,
   deletePost,
+  searchPost,
 } from "../controller/post";
 import {
   getCategories,
@@ -16,6 +17,7 @@ import {
   createCategory,
   deleteCategory,
 } from "../controller/category";
+import {createReview} from '../controller/review';
 import authentication from "../middleware/authentication";
 
 const router = express.Router();
@@ -34,7 +36,7 @@ const init = (app: Express) => {
     authentication,
     getPostByUser
   );
-  // router.get("/v1/api/search", postController.searchPost);
+  router.get("/v1/api/search", searchPost);
   router.post("/v1/api/create-post", authentication, createPost);
   router.put(
     "/v1/api/update-post",
@@ -65,6 +67,9 @@ const init = (app: Express) => {
     authentication,
     deleteCategory
   );
+
+  // Review
+  router.post('/v1/api/review', authentication, createReview);
 
   return app.use("/", router);
 };
