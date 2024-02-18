@@ -15,10 +15,10 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cors({}));
 
-// (async () => {
-//   redisClient.on("error", (error) => console.error("Error redis" + error));
-//   await redisClient.connect();
-// })();
+(async () => {
+  redisClient.on("error", (error) => console.error("Error redis" + error));
+  await redisClient.connect();
+})();
 
 
 init(app);

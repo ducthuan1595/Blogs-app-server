@@ -9,13 +9,14 @@ const post_1 = require("../controller/post");
 const category_1 = require("../controller/category");
 const review_1 = require("../controller/review");
 const authentication_1 = __importDefault(require("../middleware/authentication"));
+const redisQuery_1 = require("../middleware/redis/redisQuery");
 const router = express_1.default.Router();
 const init = (app) => {
     router.post('/v2/api/login', auth_1.login);
     router.post("/v2/api/signup", auth_1.signup);
     router.post("/v2/api/login-auth", auth_1.loginAdmin);
     // Post
-    router.get('/v1/api/posts', post_1.getAllPost);
+    router.get('/v1/api/posts', redisQuery_1.getAllPostMiddleware, post_1.getAllPost);
     router.get("/v1/api/posts-category", post_1.getPostByCategory);
     router.get("/v1/api/posts-user", authentication_1.default, post_1.getPostByUser);
     router.get("/v1/api/search", post_1.searchPost);

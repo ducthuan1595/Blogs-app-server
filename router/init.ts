@@ -19,6 +19,7 @@ import {
 } from "../controller/category";
 import {createReview} from '../controller/review';
 import authentication from "../middleware/authentication";
+import {getAllPostMiddleware} from '../middleware/redis/redisQuery';
 
 const router = express.Router();
 
@@ -29,7 +30,7 @@ const init = (app: Express) => {
   router.post("/v2/api/login-auth", loginAdmin);
 
   // Post
-  router.get('/v1/api/posts', getAllPost)
+  router.get('/v1/api/posts', getAllPostMiddleware, getAllPost)
   router.get("/v1/api/posts-category", getPostByCategory);
   router.get(
     "/v1/api/posts-user",
