@@ -3,7 +3,7 @@ import Category from '../model/category';
 import { pageSection } from '../support/pageSection';
 import { ImageType, PostType, UserType } from '../types';
 import { destroyClodinary } from '../utils/cloudinary';
-import redisClient from '../config/redisClient';
+// import {redisClient} from '../config/redisClient';
 import { GET_ALL_POST } from '../middleware/redis/redisType';
 
 interface RequestPostType {
@@ -16,6 +16,7 @@ interface RequestPostType {
 
 export const getPosts = async(page: number, limit:number) => {
   try{
+    
     await Category.find();
     const posts:PostType[] = await Post.find()
       .populate("userId", "-password")
@@ -23,10 +24,10 @@ export const getPosts = async(page: number, limit:number) => {
       .sort({updatedAt: -1})
       .lean()
           
-    await redisClient.set(GET_ALL_POST, JSON.stringify(posts), {
-      EX: 180,
-      NX: true,
-    });
+    // await redisClient.set(GET_ALL_POST, JSON.stringify(posts), {
+    //   EX: 180,
+    //   NX: true,
+    // });
     
     const data = pageSection(page, limit, posts);
     const result = {

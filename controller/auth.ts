@@ -2,25 +2,28 @@ import express, { Express, Request, Response } from "express";
 
 import {loginService, registerServer, loginAdminService} from "../service/auth";
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response) => {  
   const {email, password} = req.body;
+  
   if(!email || !password) {
     return res.status(404).json({message: 'Not found'})
   }
-  const data = await loginService(email, password);
+  const data = await loginService(email, password.toString());
   if(data) {
-    res.status(data.status).json({message: data.message, data: data.data})
+    res.status(data.status).json({message: data.message, data: data.data, token: data?.token})
   }
 };
 
 export const loginAdmin = async(req: Request, res:Response) => {
+  console.log(req.body);
+  
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(404).json({ message: "Not found" });
   }
   const data = await loginAdminService(email, password);
   if (data) {
-    res.status(data.status).json({ message: data.message, data: data.data });
+    res.status(data.status).json({ message: data.message, data: data.data, token: data?.token });
   }
 }
 

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from 'cors';
 
-import redisClient from "./config/redisClient";
+import {initRedis} from "./config/redisClient";
 import init from './router/init';
 
 dotenv.config();
@@ -15,10 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cors({}));
 
-(async () => {
-  redisClient.on("error", (error) => console.error("Error redis" + error));
-  await redisClient.connect();
-})();
+// initRedis();
 
 
 init(app);

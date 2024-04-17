@@ -17,8 +17,6 @@ const post_1 = __importDefault(require("../model/post"));
 const category_1 = __importDefault(require("../model/category"));
 const pageSection_1 = require("../support/pageSection");
 const cloudinary_1 = require("../utils/cloudinary");
-const redisClient_1 = __importDefault(require("../config/redisClient"));
-const redisType_1 = require("../middleware/redis/redisType");
 const getPosts = (page, limit) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield category_1.default.find();
@@ -27,10 +25,10 @@ const getPosts = (page, limit) => __awaiter(void 0, void 0, void 0, function* ()
             .populate("categoryId")
             .sort({ updatedAt: -1 })
             .lean();
-        yield redisClient_1.default.set(redisType_1.GET_ALL_POST, JSON.stringify(posts), {
-            EX: 180,
-            NX: true,
-        });
+        // await redisClient.set(GET_ALL_POST, JSON.stringify(posts), {
+        //   EX: 180,
+        //   NX: true,
+        // });
         const data = (0, pageSection_1.pageSection)(page, limit, posts);
         const result = {
             posts: data.result,

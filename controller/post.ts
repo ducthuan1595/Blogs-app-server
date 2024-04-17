@@ -13,6 +13,7 @@ import { RequestCustom } from "../middleware/authentication";
 import { PostType } from "../types";
 
 export const getAllPost = async(req: Request, res: Response) => {
+  
   const {page, limit} = req.query;
   if(page && limit) {
     const data = await getPosts(+page, +limit);

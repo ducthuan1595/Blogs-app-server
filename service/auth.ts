@@ -5,6 +5,7 @@ import User from '../model/auth';
 
 export const loginService = async (email:string, password:string) => {
   try{
+    
     const user = await User.findOne({email: email});    
     if(!user) {
       return {
@@ -12,7 +13,7 @@ export const loginService = async (email:string, password:string) => {
         message: 'User is not exist'
       }
     }
-
+    
     const validPw = await bcrypt.compare(password, user.password);
     if(!validPw) {
       return {
@@ -21,10 +22,12 @@ export const loginService = async (email:string, password:string) => {
       }
     }
     user.password = '';
+
     const data = {
       user,
       token: createToken(user._id.toString())
     }
+  
     return {
       status: 201,
       message: "ok",
@@ -56,10 +59,12 @@ export const loginAdminService = async (email: string, password: string) => {
       };
     }
     user.password = "";
+
     const data = {
       user,
       token: createToken(user._id.toString()),
-    };
+    }
+  
     return {
       status: 201,
       message: "ok",

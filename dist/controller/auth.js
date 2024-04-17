@@ -16,20 +16,21 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!email || !password) {
         return res.status(404).json({ message: 'Not found' });
     }
-    const data = yield (0, auth_1.loginService)(email, password);
+    const data = yield (0, auth_1.loginService)(email, password.toString());
     if (data) {
-        res.status(data.status).json({ message: data.message, data: data.data });
+        res.status(data.status).json({ message: data.message, data: data.data, token: data === null || data === void 0 ? void 0 : data.token });
     }
 });
 exports.login = login;
 const loginAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body);
     const { email, password } = req.body;
     if (!email || !password) {
         return res.status(404).json({ message: "Not found" });
     }
     const data = yield (0, auth_1.loginAdminService)(email, password);
     if (data) {
-        res.status(data.status).json({ message: data.message, data: data.data });
+        res.status(data.status).json({ message: data.message, data: data.data, token: data === null || data === void 0 ? void 0 : data.token });
     }
 });
 exports.loginAdmin = loginAdmin;
