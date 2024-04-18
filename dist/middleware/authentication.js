@@ -22,7 +22,7 @@ const authentication = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             token = req.headers.authorization.split(" ")[1];
             const tokenSecret = process.env.JWT_SECRET;
             if (tokenSecret) {
-                const decode = yield jsonwebtoken_1.default.verify(token, tokenSecret);
+                const decode = jsonwebtoken_1.default.verify(token, tokenSecret);
                 if (decode && decode.id) {
                     const user = yield auth_1.default.findById(decode.id).select('-password');
                     if (user) {
@@ -31,13 +31,13 @@ const authentication = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                     }
                 }
                 else {
-                    return res.status(403).json({ message: 'Unauthorized' });
+                    return res.status(401).json({ message: 'Unauthorized' });
                 }
             }
         }
         catch (err) {
             console.error(err);
-            return res.status(500).json({ message: 'Error from server' });
+            return res.status(500).json({ message: 'Token expired' });
         }
     }
     else {

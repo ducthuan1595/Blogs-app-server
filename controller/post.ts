@@ -14,7 +14,7 @@ import { PostType } from "../types";
 
 export const getAllPost = async(req: Request, res: Response) => {
   
-  const {page, limit} = req.query;
+  const {page = 1, limit = 4} = req.query;
   if(page && limit) {
     const data = await getPosts(+page, +limit);
     if(data) {
@@ -33,7 +33,7 @@ export const getPostByCategory = async(req: Request, res: Response) => {
 }
 
 export const getPostByUser = async(req:RequestCustom, res:Response) => {
-  const {page, limit} = req.query;
+  const {page = 1, limit = 4} = req.query;
   if(req.user && page && limit) {
     const data = await getPostByUserService(+page, +limit ,req.user);
     if(data) {

@@ -1,12 +1,13 @@
 import bcrypt from 'bcrypt';
 
-import createToken from '../support/createToken';
+import {createToken, createRefreshToken} from '../support/createToken';
 import User from '../model/auth';
 
 export const loginService = async (email:string, password:string) => {
   try{
     
-    const user = await User.findOne({email: email});    
+    const user = await User.findOne({email: email});
+     
     if(!user) {
       return {
         status: 401,
@@ -25,8 +26,10 @@ export const loginService = async (email:string, password:string) => {
 
     const data = {
       user,
-      token: createToken(user._id.toString())
+      token: createToken(user._id.toString()),
+      refreshToken: createRefreshToken(user._id.toString())
     }
+    
   
     return {
       status: 201,

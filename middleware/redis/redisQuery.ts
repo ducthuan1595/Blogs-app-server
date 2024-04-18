@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction } from "express";
-import redisClient from "../../config/redisClient";
+import {redisClient} from "../../dbs/init.redis";
 import { GET_ALL_POST } from "./redisType";
 import { pageSection } from "../../support/pageSection";
 

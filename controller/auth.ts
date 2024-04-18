@@ -10,12 +10,11 @@ export const login = async (req: Request, res: Response) => {
   }
   const data = await loginService(email, password.toString());
   if(data) {
-    res.status(data.status).json({message: data.message, data: data.data, token: data?.token})
+    res.status(data.status).json({message: data.message, data: data.data})
   }
 };
 
 export const loginAdmin = async(req: Request, res:Response) => {
-  console.log(req.body);
   
   const { email, password } = req.body;
   if (!email || !password) {
@@ -23,7 +22,7 @@ export const loginAdmin = async(req: Request, res:Response) => {
   }
   const data = await loginAdminService(email, password);
   if (data) {
-    res.status(data.status).json({ message: data.message, data: data.data, token: data?.token });
+    res.status(data.status).json({ message: data.message, data: data.data });
   }
 }
 

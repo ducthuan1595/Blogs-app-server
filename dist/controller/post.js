@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.searchPost = exports.deletePost = exports.createPost = exports.updatePost = exports.getPost = exports.getPostByUser = exports.getPostByCategory = exports.getAllPost = void 0;
 const post_1 = require("../service/post");
 const getAllPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { page, limit } = req.query;
+    const { page = 1, limit = 4 } = req.query;
     if (page && limit) {
         const data = yield (0, post_1.getPosts)(+page, +limit);
         if (data) {
@@ -31,7 +31,7 @@ const getPostByCategory = (req, res) => __awaiter(void 0, void 0, void 0, functi
 });
 exports.getPostByCategory = getPostByCategory;
 const getPostByUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { page, limit } = req.query;
+    const { page = 1, limit = 4 } = req.query;
     if (req.user && page && limit) {
         const data = yield (0, post_1.getPostByUserService)(+page, +limit, req.user);
         if (data) {

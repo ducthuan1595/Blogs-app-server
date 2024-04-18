@@ -8,12 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllPostMiddleware = void 0;
-const redisClient_1 = __importDefault(require("../../config/redisClient"));
+const init_redis_1 = require("../../dbs/init.redis");
 const redisType_1 = require("./redisType");
 const pageSection_1 = require("../../support/pageSection");
 const getAllPostMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -22,7 +19,7 @@ const getAllPostMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 
         if (!page || !limit) {
             return res.status(404).json({ message: 'Not found' });
         }
-        const data = yield redisClient_1.default.get(redisType_1.GET_ALL_POST);
+        const data = yield init_redis_1.redisClient.get(redisType_1.GET_ALL_POST);
         if (data) {
             const posts = JSON.parse(data);
             const result = (0, pageSection_1.pageSection)(+page, +limit, posts);

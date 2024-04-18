@@ -8,21 +8,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createReviewService = void 0;
-const createReviewService = (message, user) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        return {
-            status: 301,
-            message: 'Developing',
-            data: []
-        };
-    }
-    catch (err) {
-        return {
-            status: 500,
-            message: 'Error from server'
-        };
+exports.initRedis = exports.redisClient = void 0;
+const redis_1 = require("redis");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const redisClient = (0, redis_1.createClient)({
+    password: '5gxUGDUyJQGOpiMih7LtlAROHDvPisfu',
+    socket: {
+        host: 'redis-13519.c244.us-east-1-2.ec2.cloud.redislabs.com',
+        port: 13519
     }
 });
-exports.createReviewService = createReviewService;
+exports.redisClient = redisClient;
+const initRedis = () => __awaiter(void 0, void 0, void 0, function* () {
+    redisClient.on("error", (error) => console.error("Error redis" + error));
+    yield redisClient.connect();
+});
+exports.initRedis = initRedis;

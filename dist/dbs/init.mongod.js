@@ -11,38 +11,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const cors_1 = __importDefault(require("cors"));
-const init_redis_1 = require("./dbs/init.redis");
-const init_1 = __importDefault(require("./router/init"));
 dotenv_1.default.config();
-const app = (0, express_1.default)();
-const port = process.env.PORT;
-app.use(express_1.default.json());
-app.use(express_1.default.urlencoded({ extended: true }));
-app.use((0, cors_1.default)({}));
-() => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, init_redis_1.initRedis)();
-});
-(0, init_1.default)(app);
-//handle error
-app.use((req, res, next) => {
-    const error = new Error('Not Found');
-    error.status = 500;
-    next(error);
-});
-app.use((err, req, res, next) => {
-    res.json({
-        status: err.status,
-        message: err.message
+const connectMongodb = mongoose_1.default.createConnection(process.env.DATABASE_URL || '');
+const initMongodb = () => {
+    connectMongodb.on('connected', function () {
+        console.log(`Mongodb connected`);
     });
-});
-mongoose_1.default.connect((_a = process.env.DATABASE_URL) !== null && _a !== void 0 ? _a : '').then(() => {
-    app.listen(port, () => {
-        console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+    connectMongodb.on('disconnected', function () {
+        console.log(`Mongodb disconnected`);
     });
-}).catch((err) => console.log(err));
+    connectMongodb.on('error', function (err) {
+        console.log(`Mongodb error:: ${err}`);
+    });
+    process.on('SIGINT', () => __awaiter(void 0, void 0, void 0, function* () {
+        yield connectMongodb.close();
+        process.exit(0);
+    }));
+};
+exports.default = initMongodb;

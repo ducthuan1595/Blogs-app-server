@@ -21,20 +21,23 @@ const authentication = async (
       token = req.headers.authorization.split(" ")[1];
       const tokenSecret = process.env.JWT_SECRET;
       if (tokenSecret) {
-        const decode = await jwt.verify(token, tokenSecret);
+        
+        const decode: any = jwt.verify(token, tokenSecret);
+        
         if(decode && decode.id) {
           const user:UserType = await User.findById(decode.id).select('-password');
+          
           if(user) {
             req.user = user;
             next();
           }
         }else {
-          return res.status(403).json({message: 'Unauthorized'})
+          return res.status(401).json({message: 'Unauthorized'})
         }
       }
     } catch (err) {
       console.error(err);
-      return res.status(500).json({message: 'Error from server'})
+      return res.status(500).json({message: 'Token expired'})
     }
   }else {
     return res.status(400).json({message: 'Not found token'})

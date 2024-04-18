@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerServer = exports.loginAdminService = exports.loginService = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const createToken_1 = __importDefault(require("../support/createToken"));
+const createToken_1 = require("../support/createToken");
 const auth_1 = __importDefault(require("../model/auth"));
 const loginService = (email, password) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -35,7 +35,8 @@ const loginService = (email, password) => __awaiter(void 0, void 0, void 0, func
         user.password = '';
         const data = {
             user,
-            token: (0, createToken_1.default)(user._id.toString())
+            token: (0, createToken_1.createToken)(user._id.toString()),
+            refreshToken: (0, createToken_1.createRefreshToken)(user._id.toString())
         };
         return {
             status: 201,
@@ -70,7 +71,7 @@ const loginAdminService = (email, password) => __awaiter(void 0, void 0, void 0,
         user.password = "";
         const data = {
             user,
-            token: (0, createToken_1.default)(user._id.toString()),
+            token: (0, createToken_1.createToken)(user._id.toString()),
         };
         return {
             status: 201,
