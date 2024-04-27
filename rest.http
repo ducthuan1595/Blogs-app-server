@@ -1,0 +1,16 @@
+GET http://localhost:5000/v1/api/posts
+
+###
+
+GET http://localhost:5000/v1/api/posts-user?page=1&limit=2
+
+
+###
+
+POST http://localhost:5000/v2/api/login
+Content-Type: application/json
+
+{
+    "email": "test@gmail.com",
+    "password": "123456789"
+}

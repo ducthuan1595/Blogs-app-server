@@ -1,6 +1,6 @@
 {
-  "name": "setup",
-  "version": "1.0.0",
+  "name": "blog-app",
+  "version": "1.0.1",
   "description": "",
   "main": "index.ts",
   "scripts": {

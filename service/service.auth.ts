@@ -25,6 +25,11 @@ export const loginService = async (email:string, password:string, res: Response)
     }
     user.password = '';
 
+    const data = {
+      username: user.username,
+      email: user.email
+    }
+
     const refresh_token = await createRefreshToken(user._id.toString())
     
     const access_token = await createToken(user._id.toString())
@@ -43,7 +48,7 @@ export const loginService = async (email:string, password:string, res: Response)
     return {
       status: 201,
       message: "ok",
-      data: true,
+      data: data,
     };
   }catch(err) {
     console.log('Error:::', err);
