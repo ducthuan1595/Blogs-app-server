@@ -10,15 +10,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.signup = exports.loginAdmin = exports.login = void 0;
-const auth_1 = require("../service/auth");
+const service_auth_1 = require("../service/service.auth");
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     if (!email || !password) {
         return res.status(404).json({ message: 'Not found' });
     }
-    const data = yield (0, auth_1.loginService)(email, password.toString());
+    const data = yield (0, service_auth_1.loginService)(email, password.toString(), res);
     if (data) {
-        res.status(data.status).json({ message: data.message, data: data.data });
+        res.status(data.status).json({ message: data.message, data: data === null || data === void 0 ? void 0 : data.data });
     }
 });
 exports.login = login;
@@ -27,7 +27,7 @@ const loginAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     if (!email || !password) {
         return res.status(404).json({ message: "Not found" });
     }
-    const data = yield (0, auth_1.loginAdminService)(email, password);
+    const data = yield (0, service_auth_1.loginAdminService)(email, password);
     if (data) {
         res.status(data.status).json({ message: data.message, data: data.data });
     }
@@ -38,7 +38,7 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!email || !password || !username) {
         return res.status(404).json({ message: 'Not found' });
     }
-    const data = yield (0, auth_1.registerServer)(email, password, username);
+    const data = yield (0, service_auth_1.registerServer)(email, password, username);
     if (data) {
         res.status(data.status).json({ message: data.message });
     }

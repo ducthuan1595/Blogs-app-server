@@ -2,10 +2,12 @@ import express, { Express, NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from 'cors';
+import session from 'express-session';
+import RedisStore from "connect-redis";
+import cookieParser from 'cookie-parser';
 
-import { initRedis } from "./dbs/init.redis";
+import { initRedis, redisClient } from "./dbs/init.redis";
 import init from './router/init';
-import initMongodb from "./dbs/init.mongod";
 
 dotenv.config();
 
@@ -15,10 +17,29 @@ const port = process.env.PORT;
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cors({}));
+app.use(cookieParser());
 
-async() => {
+// init redis
+(async() => {
   await initRedis();
-}
+  const redisStore = new RedisStore({
+    client: redisClient
+  })
+  
+  // save session
+  app.use(session({
+    secret: 'blog-app',
+    resave: false,
+    store: redisStore,
+    saveUninitialized: true,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 5 * 60 * 1000
+    }
+  }))
+})()
+
 
 init(app);
 

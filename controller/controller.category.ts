@@ -5,7 +5,7 @@ import {
   getCategoryService,
   createCategoryService,
   deleteCategoryService,
-} from "../service/category";
+} from "../service/service.category";
 import dotenv from 'dotenv'
 import { RequestCustom } from '../middleware/authentication';
 dotenv.config();

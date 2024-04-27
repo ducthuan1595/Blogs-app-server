@@ -16,7 +16,7 @@ exports.registerServer = exports.loginAdminService = exports.loginService = void
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const createToken_1 = require("../support/createToken");
 const auth_1 = __importDefault(require("../model/auth"));
-const loginService = (email, password) => __awaiter(void 0, void 0, void 0, function* () {
+const loginService = (email, password, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield auth_1.default.findOne({ email: email });
         if (!user) {
@@ -33,18 +33,26 @@ const loginService = (email, password) => __awaiter(void 0, void 0, void 0, func
             };
         }
         user.password = '';
-        const data = {
-            user,
-            token: (0, createToken_1.createToken)(user._id.toString()),
-            refreshToken: (0, createToken_1.createRefreshToken)(user._id.toString())
-        };
+        const refresh_token = yield (0, createToken_1.createRefreshToken)(user._id.toString());
+        const access_token = yield (0, createToken_1.createToken)(user._id.toString());
+        res.cookie('access_token', access_token, {
+            maxAge: 365 * 24 * 60 * 60 * 100,
+            httpOnly: true,
+            //secure: true;
+        });
+        res.cookie('refresh_token', refresh_token, {
+            maxAge: 365 * 24 * 60 * 60 * 100,
+            httpOnly: true,
+            //secure: true;
+        });
         return {
             status: 201,
             message: "ok",
-            data: data,
+            data: true,
         };
     }
     catch (err) {
+        console.log('Error:::', err);
         return {
             status: 500,
             message: 'Error from server'

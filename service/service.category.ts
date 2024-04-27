@@ -1,4 +1,4 @@
-import Category from "../model/category";
+import Category from "../model/model.category";
 import { CategoryType, ImageType, UserType } from "../types";
 import { destroyClodinary } from "../utils/cloudinary";
 

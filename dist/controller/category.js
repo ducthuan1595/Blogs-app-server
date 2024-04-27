@@ -13,11 +13,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteCategory = exports.createCategory = exports.updateCategory = exports.getCategories = void 0;
-const category_1 = require("../service/category");
+const service_category_1 = require("../service/service.category");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const getCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { status, message, data } = yield (0, category_1.getCategoryService)();
+    const { status, message, data } = yield (0, service_category_1.getCategoryService)();
     res.status(status).json({ message, data });
 });
 exports.getCategories = getCategories;
@@ -26,7 +26,7 @@ const updateCategory = (req, res) => __awaiter(void 0, void 0, void 0, function*
     if (!categoryId || !req.user || !slogan || !name) {
         return res.status(400).json({ message: 'Not found' });
     }
-    const data = yield (0, category_1.editCategory)(categoryId.toString(), name, image, slogan, req.user);
+    const data = yield (0, service_category_1.editCategory)(categoryId.toString(), name, image, slogan, req.user);
     if (data) {
         return res.status(data.status).json({ message: data.message, data: data === null || data === void 0 ? void 0 : data.data });
     }
@@ -37,7 +37,7 @@ const createCategory = (req, res) => __awaiter(void 0, void 0, void 0, function*
     if (!name || !slogan || (image === null || image === void 0 ? void 0 : image.length) || !req.user) {
         return res.status(400).json({ message: 'Not found' });
     }
-    const data = yield (0, category_1.createCategoryService)(name, slogan, image, req.user);
+    const data = yield (0, service_category_1.createCategoryService)(name, slogan, image, req.user);
     if (data) {
         return res.status(data.status).json({ message: data.message, data: data === null || data === void 0 ? void 0 : data.data });
     }
@@ -48,7 +48,7 @@ const deleteCategory = (req, res) => __awaiter(void 0, void 0, void 0, function*
     if (!categoryId || !req.user) {
         return res.status(400).json({ message: "Not found" });
     }
-    const data = yield (0, category_1.deleteCategoryService)(categoryId.toString(), req.user);
+    const data = yield (0, service_category_1.deleteCategoryService)(categoryId.toString(), req.user);
     if (data) {
         return res
             .status(data.status)

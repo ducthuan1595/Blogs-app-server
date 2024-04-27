@@ -1,9 +1,10 @@
 import bcrypt from 'bcrypt';
+import { Response } from 'express';
 
 import {createToken, createRefreshToken} from '../support/createToken';
-import User from '../model/auth';
+import User from '../model/model.auth';
 
-export const loginService = async (email:string, password:string) => {
+export const loginService = async (email:string, password:string, res: Response) => {
   try{
     
     const user = await User.findOne({email: email});
@@ -24,19 +25,28 @@ export const loginService = async (email:string, password:string) => {
     }
     user.password = '';
 
-    const data = {
-      user,
-      token: createToken(user._id.toString()),
-      refreshToken: createRefreshToken(user._id.toString())
-    }
+    const refresh_token = await createRefreshToken(user._id.toString())
     
+    const access_token = await createToken(user._id.toString())
+  
+    res.cookie('access_token', access_token, {
+      maxAge: 365 * 24 * 60 * 60 * 100,
+      httpOnly: true,
+      //secure: true;
+    });
+    res.cookie('refresh_token', refresh_token, {
+      maxAge: 365 * 24 * 60 * 60 * 100,
+      httpOnly: true,
+      //secure: true;
+    })
   
     return {
       status: 201,
       message: "ok",
-      data: data,
+      data: true,
     };
   }catch(err) {
+    console.log('Error:::', err);
     return {
       status: 500,
       message: 'Error from server'

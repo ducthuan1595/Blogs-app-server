@@ -1,46 +1,46 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import User from "../model/auth";
+import User from "../model/model.auth";
+import { redisClient } from "../dbs/init.redis";
 import { UserType } from "../types";
 
 export interface RequestCustom extends Request {
   user?: UserType;
 }
 
+
 const authentication = async (
   req: RequestCustom,
   res: Response,
   next: NextFunction
 ) => {  
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    try {
-      token = req.headers.authorization.split(" ")[1];
-      const tokenSecret = process.env.JWT_SECRET;
-      if (tokenSecret) {
-        
-        const decode: any = jwt.verify(token, tokenSecret);
-        
-        if(decode && decode.id) {
-          const user:UserType = await User.findById(decode.id).select('-password');
-          
-          if(user) {
-            req.user = user;
-            next();
-          }
-        }else {
-          return res.status(401).json({message: 'Unauthorized'})
+  if (!req.cookies.access_token) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  
+  try {
+    const tokenId = req.cookies.access_token;
+    const token = await redisClient.get(tokenId);
+    const tokenSecret = process.env.JWT_SECRET_TOKEN;
+    if (tokenSecret && token) {
+      
+      jwt.verify(token, tokenSecret, async(err, data: any) => {
+        if(err) {
+          return res.status(401).json({message: 'Token is expired'})
         }
-      }
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({message: 'Token expired'})
+        const user:UserType = await User.findById(data.id).select('-password');
+        
+        if(user) {
+          req.user = user;
+          next();
+        }
+        
+      });
+      
     }
-  }else {
-    return res.status(400).json({message: 'Not found token'})
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({message: 'Token expired'})
   }
 };
 

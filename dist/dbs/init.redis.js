@@ -17,10 +17,10 @@ const redis_1 = require("redis");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const redisClient = (0, redis_1.createClient)({
-    password: '5gxUGDUyJQGOpiMih7LtlAROHDvPisfu',
+    password: process.env.REDIS_PASSWORD || '',
     socket: {
-        host: 'redis-13519.c244.us-east-1-2.ec2.cloud.redislabs.com',
-        port: 13519
+        host: process.env.REDIS_HOST || '',
+        port: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 13616
     }
 });
 exports.redisClient = redisClient;

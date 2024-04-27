@@ -17,6 +17,9 @@ const express_1 = __importDefault(require("express"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
+const express_session_1 = __importDefault(require("express-session"));
+const connect_redis_1 = __importDefault(require("connect-redis"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const init_redis_1 = require("./dbs/init.redis");
 const init_1 = __importDefault(require("./router/init"));
 dotenv_1.default.config();
@@ -25,9 +28,26 @@ const port = process.env.PORT;
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)({}));
-() => __awaiter(void 0, void 0, void 0, function* () {
+app.use((0, cookie_parser_1.default)());
+// init redis
+(() => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, init_redis_1.initRedis)();
-});
+    const redisStore = new connect_redis_1.default({
+        client: init_redis_1.redisClient
+    });
+    // save session
+    app.use((0, express_session_1.default)({
+        secret: 'blog-app',
+        resave: false,
+        store: redisStore,
+        saveUninitialized: true,
+        cookie: {
+            secure: false,
+            httpOnly: true,
+            maxAge: 5 * 60 * 1000
+        }
+    }));
+}))();
 (0, init_1.default)(app);
 //handle error
 app.use((req, res, next) => {

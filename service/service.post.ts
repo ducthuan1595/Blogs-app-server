@@ -1,5 +1,5 @@
-import Post from '../model/post';
-import Category from '../model/category';
+import Post from '../model/model.post';
+import Category from '../model/model.category';
 import { pageSection } from '../support/pageSection';
 import { ImageType, PostType, UserType } from '../types';
 import { destroyClodinary } from '../utils/cloudinary';
@@ -160,6 +160,8 @@ export const createPostService = async(request: RequestPostType, user: UserType)
       message: 'ok'
     }
   }catch(err) {
+    console.log('Error:::', err);
+    
     return {
       status: 500,
       message: 'Error from server'

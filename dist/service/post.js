@@ -167,6 +167,7 @@ const createPostService = (request, user) => __awaiter(void 0, void 0, void 0, f
         };
     }
     catch (err) {
+        console.log('Error:::', err);
         return {
             status: 500,
             message: 'Error from server'

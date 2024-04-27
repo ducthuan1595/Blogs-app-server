@@ -10,13 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createReview = void 0;
-const review_1 = require("../service/review");
+const service_review_1 = require("../service/service.review");
 const createReview = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { message } = req.body;
     if (!message || !req.user) {
         return res.status(404).json({ message: "Not found" });
     }
-    const data = yield (0, review_1.createReviewService)(message, req.user);
+    const data = yield (0, service_review_1.createReviewService)(message, req.user);
     if (data) {
         return res
             .status(data.status)

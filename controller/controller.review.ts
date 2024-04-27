@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { RequestCustom } from "../middleware/authentication";
-import { createReviewService } from '../service/review';
+import { createReviewService } from '../service/service.review';
 
 export const createReview = async (req: RequestCustom, res: Response) => {
   const { message } = req.body;

@@ -13,35 +13,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const auth_1 = __importDefault(require("../model/auth"));
+const model_auth_1 = __importDefault(require("../model/model.auth"));
+const init_redis_1 = require("../dbs/init.redis");
 const authentication = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    let token;
-    if (req.headers.authorization &&
-        req.headers.authorization.startsWith("Bearer")) {
-        try {
-            token = req.headers.authorization.split(" ")[1];
-            const tokenSecret = process.env.JWT_SECRET;
-            if (tokenSecret) {
-                const decode = jsonwebtoken_1.default.verify(token, tokenSecret);
-                if (decode && decode.id) {
-                    const user = yield auth_1.default.findById(decode.id).select('-password');
-                    if (user) {
-                        req.user = user;
-                        next();
-                    }
+    if (!req.cookies.access_token) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    try {
+        const tokenId = req.cookies.access_token;
+        const token = yield init_redis_1.redisClient.get(tokenId);
+        const tokenSecret = process.env.JWT_SECRET_TOKEN;
+        if (tokenSecret && token) {
+            jsonwebtoken_1.default.verify(token, tokenSecret, (err, data) => __awaiter(void 0, void 0, void 0, function* () {
+                if (err) {
+                    return res.status(401).json({ message: 'Token is expired' });
                 }
-                else {
-                    return res.status(401).json({ message: 'Unauthorized' });
+                const user = yield model_auth_1.default.findById(data.id).select('-password');
+                if (user) {
+                    req.user = user;
+                    next();
                 }
-            }
-        }
-        catch (err) {
-            console.error(err);
-            return res.status(500).json({ message: 'Token expired' });
+            }));
         }
     }
-    else {
-        return res.status(400).json({ message: 'Not found token' });
+    catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Token expired' });
     }
 });
 exports.default = authentication;

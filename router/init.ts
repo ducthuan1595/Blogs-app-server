@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from "express";
 
-import { login, signup, loginAdmin } from "../controller/auth";
+import { login, signup, loginAdmin } from "../controller/controller.auth";
 import {
   getAllPost,
   getPostByCategory,
@@ -10,14 +10,14 @@ import {
   createPost,
   deletePost,
   searchPost,
-} from "../controller/post";
+} from "../controller/controller.post";
 import {
   getCategories,
   updateCategory,
   createCategory,
   deleteCategory,
-} from "../controller/category";
-import {createReview} from '../controller/review';
+} from "../controller/controller.category";
+import {createReview} from '../controller/controller.review';
 import authentication from "../middleware/authentication";
 import {getAllPostMiddleware} from '../middleware/redis/redisQuery';
 

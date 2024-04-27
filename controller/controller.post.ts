@@ -8,7 +8,7 @@ import {
   createPostService,
   deletePostService,
   searchPostService,
-} from "../service/post";
+} from "../service/service.post";
 import { RequestCustom } from "../middleware/authentication";
 import { PostType } from "../types";
 

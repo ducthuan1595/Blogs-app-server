@@ -10,11 +10,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.searchPost = exports.deletePost = exports.createPost = exports.updatePost = exports.getPost = exports.getPostByUser = exports.getPostByCategory = exports.getAllPost = void 0;
-const post_1 = require("../service/post");
+const service_post_1 = require("../service/service.post");
 const getAllPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { page = 1, limit = 4 } = req.query;
     if (page && limit) {
-        const data = yield (0, post_1.getPosts)(+page, +limit);
+        const data = yield (0, service_post_1.getPosts)(+page, +limit);
         if (data) {
             return res.status(data.status).json({ message: data.message, data: data.data });
         }
@@ -26,14 +26,14 @@ const getPostByCategory = (req, res) => __awaiter(void 0, void 0, void 0, functi
     if (!categoryId || !page || !limit) {
         return res.status(400).json({ message: 'Not found' });
     }
-    const { status, message, data } = yield (0, post_1.getPostByCategoryService)(+page, +limit, categoryId.toString());
+    const { status, message, data } = yield (0, service_post_1.getPostByCategoryService)(+page, +limit, categoryId.toString());
     return res.status(status).json({ message, data });
 });
 exports.getPostByCategory = getPostByCategory;
 const getPostByUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { page = 1, limit = 4 } = req.query;
     if (req.user && page && limit) {
-        const data = yield (0, post_1.getPostByUserService)(+page, +limit, req.user);
+        const data = yield (0, service_post_1.getPostByUserService)(+page, +limit, req.user);
         if (data) {
             return res.status(data.status).json({ message: data.message, data: data.data });
         }
@@ -45,7 +45,7 @@ const getPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!postId) {
         return res.status(404).json({ message: 'Not found' });
     }
-    const data = yield (0, post_1.getPostService)(postId.toString());
+    const data = yield (0, service_post_1.getPostService)(postId.toString());
     if (data) {
         return res.status(data.status).json({ message: data.message, data: data.data });
     }
@@ -56,7 +56,7 @@ const updatePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     if (!request.postId || !request.desc || !request.title || !request.categoryId || !req.user) {
         return res.status(404).json({ message: 'Not found' });
     }
-    const data = yield (0, post_1.updatePostService)(request, req.user);
+    const data = yield (0, service_post_1.updatePostService)(request, req.user);
     if (data) {
         return res.status(data.status).json({ message: data.message });
     }
@@ -71,7 +71,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         !req.user) {
         return res.status(404).json({ message: "Not found" });
     }
-    const data = yield (0, post_1.createPostService)(request, req.user);
+    const data = yield (0, service_post_1.createPostService)(request, req.user);
     if (data) {
         return res.status(data.status).json({ message: data.message });
     }
@@ -82,7 +82,7 @@ const deletePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     if (!postId || !req.user) {
         return res.status(404).json({ message: 'Not found' });
     }
-    const data = yield (0, post_1.deletePostService)(postId.toString(), req.user);
+    const data = yield (0, service_post_1.deletePostService)(postId.toString(), req.user);
     if (data) {
         return res.status(data.status).json({ message: data.message });
     }
@@ -93,7 +93,7 @@ const searchPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     if (!search) {
         return res.status(400).json({ message: 'Not found' });
     }
-    const data = yield (0, post_1.searchPostService)(search.toString());
+    const data = yield (0, service_post_1.searchPostService)(search.toString());
     if (data) {
         return res.status(data.status).json({ message: data.message, data: data.data });
     }

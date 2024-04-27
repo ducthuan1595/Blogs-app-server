@@ -1,18 +1,34 @@
 import jwt from "jsonwebtoken";
 
-function createToken(id: string) {
+import { redisClient } from "../dbs/init.redis";
+
+async function createToken(id: string) {
   if (process.env.JWT_SECRET_TOKEN) {
-    return jwt.sign({ id }, process.env.JWT_SECRET_TOKEN, {
-      expiresIn: "30s",
-    });
+    const tokenCounter = await redisClient.get('tokenCouter') as string;
+    await redisClient.set("tokenCouter", parseInt(tokenCounter) + 1);
+    let key = (parseInt(tokenCounter!) + 1).toString(); 
+
+    const token = jwt.sign({id}, process.env.JWT_SECRET_TOKEN, {
+      expiresIn: '300s'
+    })
+    // save token to redis store
+    await redisClient.set(key, token);
+    return key;
   }
 }
 
-function createRefreshToken (id: string) {
+async function createRefreshToken (id: string) {
   if (process.env.JWT_SECRET_REFRESH_TOKEN) {
-    return jwt.sign({ id }, process.env.JWT_SECRET_REFRESH_TOKEN, {
-      expiresIn: "1h",
-    });
+    const tokenCounter = await redisClient.get('tokenCouter') as string;
+    await redisClient.set("tokenCouter", parseInt(tokenCounter) + 1);
+    let key = (parseInt(tokenCounter!) + 1).toString(); 
+
+    const token = jwt.sign({id}, process.env.JWT_SECRET_REFRESH_TOKEN, {
+      expiresIn: '300s'
+    })
+    // save token to redis store
+    await redisClient.set(key, token);
+    return key;
   }
 }
 
