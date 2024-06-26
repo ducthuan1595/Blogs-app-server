@@ -8,8 +8,8 @@ import {
   createPostService,
   deletePostService,
   searchPostService,
-} from "../service/service.post";
-import { RequestCustom } from "../middleware/authentication";
+} from "../service/blog.service";
+import { RequestCustom } from "../middleware/auth.middleware";
 import { PostType } from "../types";
 
 export const getAllPost = async(req: Request, res: Response) => {

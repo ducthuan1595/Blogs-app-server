@@ -7,7 +7,7 @@ import {
   deleteCategoryService,
 } from "../service/service.category";
 import dotenv from 'dotenv'
-import { RequestCustom } from '../middleware/authentication';
+import { RequestCustom } from '../middleware/auth.middleware';
 dotenv.config();
 
 export const getCategories = async(req: Request, res: Response) => {

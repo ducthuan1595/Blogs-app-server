@@ -7,10 +7,52 @@ GET http://localhost:5000/v1/api/posts-user?page=1&limit=2
 
 ###
 
-POST http://localhost:5000/v2/api/login
+POST http://localhost:5000/v1/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "test@gmail.com",
+    "email": "thuantd@funix.edu.vn",
     "password": "123456789"
+}
+
+###
+
+POST http://localhost:5000/v1/api/auth/signup
+Content-Type: application/json
+
+{
+    "email": "thuantd@funix.edu.vn",
+    "password": "123456789",
+    "username": "test"
+}
+
+###
+
+POST http://localhost:5000/v1/api/auth/signup
+Content-Type: application/json
+
+{
+    "email": "thuantd@funix.edu.vn",
+    "password": "123456789",
+    "username": "test"
+}
+
+###
+
+POST http://localhost:5000/v1/api/otp/verify
+Content-Type: application/json
+
+{
+    "email": "thuantd@funix.edu.vn",
+    "otp": "542052"
+}
+
+###
+
+POST http://localhost:5000/v1/api/otp/sent-otp
+Content-Type: application/json
+
+{
+    "email": "thuantd@funix.edu.vn",
+    "username": "test"
 }

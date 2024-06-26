@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from "express";
 
-import { login, signup, loginAdmin } from "../controller/controller.auth";
+import { login, signup, loginAdmin } from "../controller/user.controller";
 import {
   getAllPost,
   getPostByCategory,
@@ -10,15 +10,15 @@ import {
   createPost,
   deletePost,
   searchPost,
-} from "../controller/controller.post";
+} from "../controller/blog.controller";
 import {
   getCategories,
   updateCategory,
   createCategory,
   deleteCategory,
-} from "../controller/controller.category";
-import {createReview} from '../controller/controller.review';
-import authentication from "../middleware/authentication";
+} from "../controller/categories.controller";
+import {createReview} from '../controller/review.controller';
+import authentication from "../middleware/auth.middleware";
 import {getAllPostMiddleware} from '../middleware/redis/redisQuery';
 
 const router = express.Router();

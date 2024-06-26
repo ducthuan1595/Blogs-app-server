@@ -1,10 +1,8 @@
-import Post from '../model/model.post';
-import Category from '../model/model.category';
+import Post from '../model/blog.model';
+import Category from '../model/categories.model';
 import { pageSection } from '../support/pageSection';
 import { ImageType, PostType, UserType } from '../types';
 import { destroyClodinary } from '../utils/cloudinary';
-// import {redisClient} from '../config/redisClient';
-import { GET_ALL_POST } from '../middleware/redis/redisType';
 
 interface RequestPostType {
   title: string;
@@ -24,10 +22,6 @@ export const getPosts = async(page: number, limit:number) => {
       .sort({updatedAt: -1})
       .lean()
           
-    // await redisClient.set(GET_ALL_POST, JSON.stringify(posts), {
-    //   EX: 180,
-    //   NX: true,
-    // });
     
     const data = pageSection(page, limit, posts);
     const result = {

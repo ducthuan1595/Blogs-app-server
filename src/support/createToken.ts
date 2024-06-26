@@ -24,7 +24,7 @@ async function createRefreshToken (id: string) {
     let key = (parseInt(tokenCounter!) + 1).toString(); 
 
     const token = jwt.sign({id}, process.env.JWT_SECRET_REFRESH_TOKEN, {
-      expiresIn: '300s'
+      expiresIn: '30d'
     })
     // save token to redis store
     await redisClient.set(key, token);

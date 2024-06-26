@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const schema = new mongoose.Schema({
   username: {
@@ -10,9 +10,9 @@ const schema = new mongoose.Schema({
     unique: true,
     require: true
   },
-  role: {
-    type: String,
-    default: 'F0'
+  roleId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Permission'
   },
   password: {
     type: String,
