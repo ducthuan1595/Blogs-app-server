@@ -7,7 +7,7 @@ import _Permission from '../model/permission.model';
 
 import {createOtp, insertOtp} from '../utils/otp';
 import sendMailer from '../support/emails/otp';
-import { createToken, createRefreshToken } from '../auth/createToken';
+import { createToken } from '../auth/createToken';
 
 
 const verifyOtpService = async({email, otp, res}:{email: string, otp: string, res: Response}) => {
@@ -34,29 +34,15 @@ const verifyOtpService = async({email, otp, res}:{email: string, otp: string, re
                 const updatePermit = await _Permission.findOneAndUpdate({_id: user.roleId}, {user: true})
                 if(updatePermit){
                     user = await _User.findById(user._id).populate('roleId', '-_id -userId').select('-password');
-                    const refresh_token = await createRefreshToken(user._id.toString())
         
-                    const access_token = await createToken(user._id.toString())
+                    const tokens = await createToken(res, user._id.toString())
                 
-                    res.cookie('access_token', access_token, {
-                    maxAge: 365 * 24 * 60 * 60 * 100,
-                    httpOnly: true,
-                    //secure: true;
-                    });
-                    res.cookie('refresh_token', refresh_token, {
-                    maxAge: 365 * 24 * 60 * 60 * 100,
-                    httpOnly: true,
-                    //secure: true;
-                    });
                     return {
                         code: 201,
                         message: 'ok',
                         data: {
                             user,
-                            token: {
-                                accessToken: access_token,
-                                refreshToken: refresh_token
-                            }
+                            tokens
                         },
                     }
                 }

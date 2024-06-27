@@ -1,6 +1,6 @@
 import { Express, Request, Response } from "express";
 
-import {loginService, registerServer, logoutService} from "../service/user.service";
+import {loginService, registerServer, logoutService, handleRefreshToken} from "../service/user.service";
 import { loginValidate, signUpValidate } from '../support/validation/user.validation';
 
 export const login = async (req: Request, res: Response) => {  
@@ -39,7 +39,7 @@ export const logout = async (req: Request, res: Response) => {
         const tokenId = req.cookies.access_token;
         
         if(!tokenId) {
-            res.status(403).json({message: 'Unauthorized', code : 403})
+            return res.status(403).json({message: 'Unauthorized', code : 403})
         }
         const data = await logoutService(req, res);
         if(data) {
@@ -47,5 +47,20 @@ export const logout = async (req: Request, res: Response) => {
         }
     }catch(err) {
         res.status(500).json({message: 'Error from server', code: 500});
+    }
+}
+
+export const refreshToken = async (req: Request, res: Response) => {
+    try{
+        const accessTokenId = req.cookies.refresh_token;
+        const refreshTokenId = req.cookies.access_token;
+
+        const data = await handleRefreshToken({res, accessTokenId, refreshTokenId});
+        if(data) {
+            res.status(data.code).json({message: data.message, data: data?.data, code: data.code});
+        }
+
+    }catch(err) {
+        res.status(500).json({message: 'Error from server', code: 500})
     }
 }

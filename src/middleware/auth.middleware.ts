@@ -18,6 +18,8 @@ const authentication = async (
   res: Response,
   next: NextFunction
 ) => {  
+  console.log('create comment');
+  
   if (!req.cookies.access_token) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -28,7 +30,7 @@ const authentication = async (
     const tokenSecret = process.env.JWT_SECRET_TOKEN;
     if (tokenSecret && token) {
       
-        const user: VerifyTokenResult = await verifyToken(tokenId);
+        const user: VerifyTokenResult = await verifyToken(tokenSecret, token);
         
         if(user) {
             req.user = user.user as UserType;
@@ -42,11 +44,8 @@ const authentication = async (
   }
 };
 
-const verifyToken = async (tokenId: string): Promise<VerifyTokenResult> => {
-    try {
-        const token = await redisClient.get(tokenId);
-        const tokenSecret = process.env.JWT_SECRET_TOKEN;
-    
+const verifyToken = async (tokenSecret: string, token: string): Promise<VerifyTokenResult> => {
+    try {    
         if (tokenSecret && token) {
             const decoded = await new Promise<JwtPayload | null>((resolve, reject) => {
                 jwt.verify(token, tokenSecret, (err, data) => {

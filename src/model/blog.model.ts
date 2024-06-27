@@ -36,4 +36,4 @@ const schema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model('Post', schema);
+export default mongoose.model('Blog', schema);

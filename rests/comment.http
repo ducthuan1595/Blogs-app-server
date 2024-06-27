@@ -1,0 +1,14 @@
+@url=http://localhost:5000
+
+POST http://localhost:5000/v1/api/comment
+Content-Type: application/json
+
+{
+    "userId": "656a088a9509b141c4f337bf",
+    "blogId": "6570bc0a43f5cf59036bc7f2",
+    "content": "comment 2.1"
+}
+
+###
+
+GET http://localhost:5000/v1/api/comment?blogId=6570bc0a43f5cf59036bc7f2

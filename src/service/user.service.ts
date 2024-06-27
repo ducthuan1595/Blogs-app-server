@@ -5,7 +5,7 @@ import _User from '../model/user.model';
 import _Permission from '../model/permission.model';
 
 import { createOtp, insertOtp } from '../utils/otp';
-import {createToken, createRefreshToken} from '../auth/createToken';
+import {createToken} from '../auth/createToken';
 import sendMailer from '../support/emails/otp';
 import { RequestCustom } from '../middleware/auth.middleware';
 import { redisClient } from '../dbs/init.redis';
@@ -30,21 +30,8 @@ export const loginService = async ({email, password, res}:{email:string, passwor
                 message: 'Password is incorrect'
             }
         }
-
-        const refresh_token = await createRefreshToken(user._id.toString())
         
-        const access_token = await createToken(user._id.toString())
-    
-        res.cookie('access_token', access_token, {
-        maxAge: 365 * 24 * 60 * 60 * 100,
-        httpOnly: true,
-        //secure: true;
-        });
-        res.cookie('refresh_token', refresh_token, {
-        maxAge: 365 * 24 * 60 * 60 * 100,
-        httpOnly: true,
-        //secure: true;
-        });
+        const tokens = await createToken(res, user._id.toString());
 
         const data = {
             username: user.username,
@@ -56,10 +43,7 @@ export const loginService = async ({email, password, res}:{email:string, passwor
             code: 201,
             message: "ok",
             data: data,
-            token: {
-                refreshToken: refresh_token,
-                accessToken: access_token
-            }
+            tokens
         };
     }catch(err) {
         console.log('Error:::', err);
@@ -131,7 +115,7 @@ export const logoutService = async(req: Request, res: Response) => {
         const tokenSecret = process.env.JWT_SECRET_TOKEN;
         if (tokenSecret && token) {
             
-            const user = await verifyToken(tokenId);
+            const user = await verifyToken(tokenSecret, tokenId);
             if(user) {
                 
                 await redisClient.del(tokenId);
@@ -147,5 +131,38 @@ export const logoutService = async(req: Request, res: Response) => {
     }catch(err) {
         console.error(err);
         
+    }
+}
+
+export const handleRefreshToken = async (
+    {res, accessTokenId, refreshTokenId} :
+    {res: Response, accessTokenId: string, refreshTokenId: string}
+) => {
+    try{        
+        const accessToken = await redisClient.get(accessTokenId);
+        const refreshToken = await redisClient.get(refreshTokenId);
+        const refreshTokenSecret = process.env.JWT_SECRET_REFRESH_TOKEN;
+        const accessTokenSecret = process.env.JWT_SECRET_TOKEN;
+
+        if (refreshTokenSecret && accessTokenSecret && accessToken && refreshToken) {
+            
+            const data = await verifyToken(refreshTokenSecret, refreshToken);
+            if(data.user) {
+                
+                await redisClient.del(accessTokenId);
+                await redisClient.del(refreshTokenId);
+
+                const tokens = await createToken(res, data.user._id.toString());
+
+                return {message: 'ok', code: 200, data: tokens}
+            }else {
+                return {message: 'Token expired', code: 403};
+            }
+                    
+        } else {
+            return {message: 'Refresh Token existed!', code: 404};
+        }
+    }catch(err) {
+        console.error(err);
     }
 }
