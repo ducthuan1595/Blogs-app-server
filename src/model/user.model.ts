@@ -23,6 +23,11 @@ const schema = new mongoose.Schema({
       type: String
     },
     public_id: String
+  },
+  status: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'inactive'
   }
 }, {timestamps: true})
 

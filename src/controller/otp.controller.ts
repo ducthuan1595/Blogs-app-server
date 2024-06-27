@@ -4,7 +4,7 @@ import { verifyOtpService, sendAgainOtpService } from '../service/otp.service';
 
 import { verifyOtpValidate, sendAgainOtpValidate } from '../support/validation/otp.validation';
 
-const verifyOtp = async(req: Request, res: Response) {
+const verifyOtp = async(req: Request, res: Response) => {
     try{
         const {email, otp} = req.body;
         const {error} = verifyOtpValidate(req.body);
@@ -15,7 +15,7 @@ const verifyOtp = async(req: Request, res: Response) {
             })
         }
 
-        const data = await verifyOtpService({email, otp});
+        const data = await verifyOtpService({email, otp, res});
         if(data) {
             return res.status(data.code).json(data)
         }

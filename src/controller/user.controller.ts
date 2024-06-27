@@ -1,6 +1,6 @@
-import express, { Express, Request, Response } from "express";
+import { Express, Request, Response } from "express";
 
-import {loginService, registerServer} from "../service/user.service";
+import {loginService, registerServer, logoutService} from "../service/user.service";
 import { loginValidate, signUpValidate } from '../support/validation/user.validation';
 
 export const login = async (req: Request, res: Response) => {  
@@ -12,7 +12,7 @@ export const login = async (req: Request, res: Response) => {
 
     const data = await loginService({email, password, res});
     if(data) {
-        res.status(data.code).json({message: data.message, data: data?.data})
+        res.status(data.code).json({message: data.message, data: data?.data, code: data.code})
     }
 };
 
@@ -26,9 +26,26 @@ export const signup = async(req: Request, res: Response) => {
         }
         const data = await registerServer({email, password, username});
         if(data) {
-            res.status(data.code).json({message: data.message, data: data?.data})
+            res.status(data.code).json({message: data.message, data: data?.data, code: data.code})
         }
     }catch(err) {
+        res.status(500).json({message: 'Error from server', code: 500});
+    }
+}
 
+export const logout = async (req: Request, res: Response) => {
+    try{
+        
+        const tokenId = req.cookies.access_token;
+        
+        if(!tokenId) {
+            res.status(403).json({message: 'Unauthorized', code : 403})
+        }
+        const data = await logoutService(req, res);
+        if(data) {
+            res.status(data.code).json({message: data.message, code: data.code})
+        }
+    }catch(err) {
+        res.status(500).json({message: 'Error from server', code: 500});
     }
 }

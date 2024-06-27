@@ -1,16 +1,20 @@
 import bcrypt from 'bcrypt';
-import { Response } from 'express';
+import { Response, Request, NextFunction } from 'express';
 
 import _User from '../model/user.model';
 import _Permission from '../model/permission.model';
 
 import { createOtp, insertOtp } from '../utils/otp';
-import {createToken, createRefreshToken} from '../support/createToken';
+import {createToken, createRefreshToken} from '../auth/createToken';
 import sendMailer from '../support/emails/otp';
+import { RequestCustom } from '../middleware/auth.middleware';
+import { redisClient } from '../dbs/init.redis';
+import { UserType } from '../types';
+import { verifyToken } from '../middleware/auth.middleware';
 
 export const loginService = async ({email, password, res}:{email:string, password:string, res: Response}) => {
     try{
-        const user = await _User.findOne({email: email}).populate('roleId', '-_id -userId');
+        const user = await _User.findOne({email: email}).populate('roleId', '-_id -userId').lean();
         
         if(!user) {
             return {
@@ -19,8 +23,8 @@ export const loginService = async ({email, password, res}:{email:string, passwor
             }
         }
         
-        const validPw = await bcrypt.compare(password, user.password);
-        if(!validPw) {
+        const match = await bcrypt.compare(password, user.password);
+        if(!match) {
             return {
                 code: 403,
                 message: 'Password is incorrect'
@@ -45,15 +49,17 @@ export const loginService = async ({email, password, res}:{email:string, passwor
         const data = {
             username: user.username,
             email: user.email,
-            roleId: user.roleId,
-            refreshToken: refresh_token,
-            accessToken: access_token
+            roleId: user.roleId, 
         }
     
         return {
             code: 201,
             message: "ok",
             data: data,
+            token: {
+                refreshToken: refresh_token,
+                accessToken: access_token
+            }
         };
     }catch(err) {
         console.log('Error:::', err);
@@ -65,9 +71,9 @@ export const loginService = async ({email, password, res}:{email:string, passwor
 }
 
 export const registerServer = async (
-    {email, password, username} : 
-    {email: string, password: string, username: string}
-) => {
+        {email, password, username} : 
+        {email: string, password: string, username: string}
+    ) => {
     try{
         const user = await _User.findOne({email: email});
         if(user) {
@@ -114,5 +120,32 @@ export const registerServer = async (
             code: 500,
             message: 'Error from server'
         }
+    }
+}
+
+export const logoutService = async(req: Request, res: Response) => {
+    try {
+        const tokenId = req.cookies.access_token;
+        
+        const token = await redisClient.get(tokenId);
+        const tokenSecret = process.env.JWT_SECRET_TOKEN;
+        if (tokenSecret && token) {
+            
+            const user = await verifyToken(tokenId);
+            if(user) {
+                
+                await redisClient.del(tokenId);
+                return {message: 'ok', code: 200}
+            }else {
+                return {message: 'Token expired', code: 403};
+            }
+                    
+        } else {
+            return {message: 'User existed!', code: 403};
+        }
+        
+    }catch(err) {
+        console.error(err);
+        
     }
 }
