@@ -25,6 +25,7 @@ export const loginService = async ({email, password, res}:{email:string, passwor
         
         const match = await bcrypt.compare(password, user.password);
         if(!match) {
+            
             return {
                 code: 403,
                 message: 'Password is incorrect'

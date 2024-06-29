@@ -1,4 +1,6 @@
 import _Comment from '../model/comment.model';
+import _Blog from '../model/blog.model';
+import { RequestCustom } from '../middleware/auth.middleware';
 
 const createCommentService = async ({
     blogId,
@@ -124,9 +126,67 @@ const getCommentsByParentId = async(
     }catch(err) {
         console.error(err); 
     }
- }
+}
+
+const deleteCommentService = async (blogId: string, commentId: string, req: RequestCustom) => {
+    try{
+        // check user
+        const blog = await _Blog.findById(blogId);
+        if(!blog) {
+            return {
+                message: 'Not found blog',
+                code: 400
+            }
+        }
+        
+        if(!req.user?.roleId['user']) {
+            return {
+                message: 'Unauthorized',
+                code: 403
+            }
+        }
+        const comment = await _Comment.findById(commentId);
+        if(!comment) {
+            return {
+                message: 'Not found blog',
+                code: 400
+            }
+        }
+        const leftValue = comment.left;
+        const rightValue = comment.right;
+        const width = rightValue - leftValue + 1;
+        await _Comment.deleteMany({
+            blogId,
+            left: {
+                $gte: leftValue,
+                $lte: rightValue
+            }
+        })
+        await _Comment.updateMany({
+            blogId,
+            right: { $gt: rightValue }
+        }, {
+            $inc: { right: -width }
+        })
+        await _Comment.updateMany({
+            blogId,
+            right: { $gt: leftValue }
+        }, {
+            $inc: { left: -width }
+        })
+
+        return {
+            message: 'ok',
+            code: 200
+        }
+    }catch(err) {
+        console.error(err);
+        
+    }
+}
 
 export {
     createCommentService,
-    getCommentsByParentId
+    getCommentsByParentId,
+    deleteCommentService
 }

@@ -1,7 +1,7 @@
 import express from 'express';
 
-import { verifyOtp, sendAgainOtp } from '../../controller/otp.controller';
-import limiterRequest from '../../middleware/limiter.middleware';
+import { verifyOtp, sendAgainOtp } from '../../../controller/otp.controller';
+import limiterRequest from '../../../middleware/limiter.middleware';
 
 const router = express.Router();
 

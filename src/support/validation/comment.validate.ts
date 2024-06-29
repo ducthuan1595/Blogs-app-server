@@ -11,8 +11,16 @@ const createCommentValidate = (data: any) => {
     return commentSchema.validate(data);
 }
 
+const deleteCommentValidate = (data: any) => {
+    const commentSchema = Joi.object({
+        blogId: Joi.string().required(),
+        commentId: Joi.string().required(),
+    });
 
+    return commentSchema.validate(data);
+}
 
 export {
     createCommentValidate,
+    deleteCommentValidate
 }

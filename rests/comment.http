@@ -11,4 +11,14 @@ Content-Type: application/json
 
 ###
 
+DELETE http://localhost:5000/v1/api/comment
+Content-Type: application/json
+
+{
+    "commentId": "667d9f215948e7582ba58d4f",
+    "blogId": "6570bc0a43f5cf59036bc7f2"
+}
+
+###
+
 GET http://localhost:5000/v1/api/comment?blogId=6570bc0a43f5cf59036bc7f2

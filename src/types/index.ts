@@ -14,7 +14,12 @@ export type UserType = {
   username: string;
   email: string;
   // password: string;
-  role: string;
+  roleId: {
+      user: Boolean,
+      moderator: Boolean,
+      admin: Boolean,
+      guest: Boolean,
+  };
   photo: ImageType;
   createdAt?: NativeDate;
   updatedAt?: NativeDate;

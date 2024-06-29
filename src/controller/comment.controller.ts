@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
-import { createCommentService, getCommentsByParentId } from '../service/comment.service';
-import { createCommentValidate } from '../support/validation/comment.validate';
+import { createCommentService, getCommentsByParentId, deleteCommentService } from '../service/comment.service';
+import { createCommentValidate, deleteCommentValidate } from '../support/validation/comment.validate';
 
 const createComment = async (req: Request, res: Response) => {
     try {
@@ -48,7 +48,28 @@ const getComments = async(req: Request, res: Response) => {
     }
 }
 
+const deleteComment = async(req: Request, res: Response) => {
+    try{
+        const {
+            blogId,
+            commentId,
+        } = req.body;
+        const {error} = deleteCommentValidate(req.body);
+        if(error) {
+            return res.status(400).json({message: error.details[0].message, code: 400})
+        }
+
+        const data = await deleteCommentService(blogId, commentId, req);
+        if(data) {
+            res.status(data.code).json({message: data.message, code: data.code})
+        }
+    }catch(err) {
+        res.status(500).json({message: 'Error from server', code: 500})
+    }
+}
+
 export {
     createComment,
-    getComments
+    getComments,
+    deleteComment
 }

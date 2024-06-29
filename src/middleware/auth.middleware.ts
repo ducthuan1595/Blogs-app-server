@@ -18,7 +18,6 @@ const authentication = async (
   res: Response,
   next: NextFunction
 ) => {  
-  console.log('create comment');
   
   if (!req.cookies.access_token) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -30,8 +29,7 @@ const authentication = async (
     const tokenSecret = process.env.JWT_SECRET_TOKEN;
     if (tokenSecret && token) {
       
-        const user: VerifyTokenResult = await verifyToken(tokenSecret, token);
-        
+        const user: VerifyTokenResult = await verifyToken(tokenSecret, token);        
         if(user) {
             req.user = user.user as UserType;
           next();
@@ -58,7 +56,7 @@ const verifyToken = async (tokenSecret: string, token: string): Promise<VerifyTo
             });
     
             if (decoded) {
-                const user: UserType = await User.findById(decoded.id).select('-password');
+                const user: UserType = await User.findById(decoded.id).populate('roleId', '-userId, -_id').select('-password');
                 return {user:user || null}
                 
             }
