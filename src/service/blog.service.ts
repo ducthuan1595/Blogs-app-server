@@ -2,7 +2,7 @@ import Post from '../model/blog.model';
 import Category from '../model/categories.model';
 import { pageSection } from '../support/pageSection';
 import { ImageType, PostType, UserType } from '../types';
-import { destroyClodinary } from '../utils/cloudinary';
+import { destroyClodinary } from './cloudinary';
 
 interface RequestPostType {
   title: string;

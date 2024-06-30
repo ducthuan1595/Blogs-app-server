@@ -1,17 +1,14 @@
 import jwt from "jsonwebtoken";
 import { Response } from "express";
 
-import { redisClient } from "../dbs/init.redis";
+import { redisClient } from "../../dbs/init.redis";
 
 async function createAccessToken(id: string) {
     
   if (process.env.JWT_SECRET_TOKEN) {
-    let tokenCounter = await redisClient.get('tokenCount') as string;
+    await redisClient.setNX('tokenCount', '0');
     
-    if(isNaN(+tokenCounter)) {
-        await redisClient.set('tokenCount', 0);
-        tokenCounter = await redisClient.get('tokenCount') as string;
-    }
+    let  tokenCounter = await redisClient.get('tokenCount') as string;
     
     await redisClient.set("tokenCount", parseInt(tokenCounter) + 1);
     let key = (parseInt(tokenCounter!) + 1).toString(); 
@@ -27,22 +24,20 @@ async function createAccessToken(id: string) {
 
 async function createRefreshToken (id: string) {
   if (process.env.JWT_SECRET_REFRESH_TOKEN) {
-    let tokenCounter = await redisClient.get('tokenCount') as string;
-    if(tokenCounter == null) {
-        await redisClient.set('tokenCount', 0);
-        tokenCounter = await redisClient.get('tokenCount') as string;
-    }
+      await redisClient.setNX('tokenCount', '0');
     
-    await redisClient.set("tokenCount", parseInt(tokenCounter) + 1);
-    let key = (parseInt(tokenCounter!) + 1).toString(); 
+      let tokenCounter = await redisClient.get('tokenCount') as string;
+    
+      await redisClient.set("tokenCount", parseInt(tokenCounter) + 1);
+      let key = (parseInt(tokenCounter!) + 1).toString(); 
 
-    const token = jwt.sign({id}, process.env.JWT_SECRET_REFRESH_TOKEN, {
-      expiresIn: '30d'
-    })
-    // save token to redis store
-    await redisClient.set(key, token);
-  
-    return key;
+      const token = jwt.sign({id}, process.env.JWT_SECRET_REFRESH_TOKEN, {
+        expiresIn: '30d'
+      })
+      // save token to redis store
+      await redisClient.set(key, token);
+    
+      return key;
   }
 }
 

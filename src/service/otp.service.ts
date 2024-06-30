@@ -7,7 +7,7 @@ import _Permission from '../model/permission.model';
 
 import {createOtp, insertOtp} from '../utils/otp';
 import sendMailer from '../support/emails/otp';
-import { createToken } from '../auth/createToken';
+import { createToken } from '../auth/token/createToken';
 
 
 const verifyOtpService = async({email, otp, res}:{email: string, otp: string, res: Response}) => {

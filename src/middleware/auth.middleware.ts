@@ -24,16 +24,18 @@ const authentication = async (
   }
   
   try {
+    
     const tokenId = req.cookies.access_token;
     const token = await redisClient.get(tokenId);
     const tokenSecret = process.env.JWT_SECRET_TOKEN;
     if (tokenSecret && token) {
       
         const user: VerifyTokenResult = await verifyToken(tokenSecret, token);        
-        if(user) {
-            req.user = user.user as UserType;
-          next();
+        if(user && user.user == null) {
+            return res.status(403).json({message: 'Token expired'})
         }
+        req.user = user.user as UserType;
+        next();
               
     }
   } catch (err) {
@@ -45,9 +47,11 @@ const authentication = async (
 const verifyToken = async (tokenSecret: string, token: string): Promise<VerifyTokenResult> => {
     try {    
         if (tokenSecret && token) {
+            
             const decoded = await new Promise<JwtPayload | null>((resolve, reject) => {
                 jwt.verify(token, tokenSecret, (err, data) => {
                     if (err) {
+                        console.log('verify token');
                     reject(err);
                     } else {
                     resolve(data as JwtPayload);
@@ -57,6 +61,7 @@ const verifyToken = async (tokenSecret: string, token: string): Promise<VerifyTo
     
             if (decoded) {
                 const user: UserType = await User.findById(decoded.id).populate('roleId', '-userId, -_id').select('-password');
+                
                 return {user:user || null}
                 
             }

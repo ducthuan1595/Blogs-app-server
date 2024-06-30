@@ -5,12 +5,12 @@ import _User from '../model/user.model';
 import _Permission from '../model/permission.model';
 
 import { createOtp, insertOtp } from '../utils/otp';
-import {createToken} from '../auth/createToken';
+import {createToken} from '../auth/token/createToken';
 import sendMailer from '../support/emails/otp';
 import { RequestCustom } from '../middleware/auth.middleware';
 import { redisClient } from '../dbs/init.redis';
-import { UserType } from '../types';
 import { verifyToken } from '../middleware/auth.middleware';
+import { removeToken } from '../auth/token/removeToken';
 
 export const loginService = async ({email, password, res}:{email:string, password:string, res: Response}) => {
     try{
@@ -110,23 +110,24 @@ export const registerServer = async (
 
 export const logoutService = async(req: Request, res: Response) => {
     try {
-        const tokenId = req.cookies.access_token;
-        
-        const token = await redisClient.get(tokenId);
-        const tokenSecret = process.env.JWT_SECRET_TOKEN;
-        if (tokenSecret && token) {
-            
-            const user = await verifyToken(tokenSecret, tokenId);
-            if(user) {
-                
-                await redisClient.del(tokenId);
-                return {message: 'ok', code: 200}
-            }else {
-                return {message: 'Token expired', code: 403};
+        let access_token = req.cookies.access_token;
+        let refresh_token = req.cookies.refresh_token;
+        const accessTokenSecret = process.env.JWT_SECRET_TOKEN;
+        const refreshTokenSecret = process.env.JWT_SECRET_REFRESH_TOKEN;
+        if(access_token && refresh_token && accessTokenSecret && refreshTokenSecret) {
+            const isAccessToken = await removeToken(accessTokenSecret, access_token);
+            const isRefreshToken = await removeToken(refreshTokenSecret, refresh_token);
+
+            if (isAccessToken && isRefreshToken) {  
+                return {message: 'ok', code: 200}        
+            } else {
+                return {message: 'User not exist!', code: 400};
             }
-                    
         } else {
-            return {message: 'User existed!', code: 403};
+            return {
+                message: 'Unauthorized!',
+                code: 403
+            }
         }
         
     }catch(err) {
@@ -140,20 +141,15 @@ export const handleRefreshToken = async (
     {res: Response, accessTokenId: string, refreshTokenId: string}
 ) => {
     try{        
-        const accessToken = await redisClient.get(accessTokenId);
-        const refreshToken = await redisClient.get(refreshTokenId);
         const refreshTokenSecret = process.env.JWT_SECRET_REFRESH_TOKEN;
         const accessTokenSecret = process.env.JWT_SECRET_TOKEN;
 
-        if (refreshTokenSecret && accessTokenSecret && accessToken && refreshToken) {
-            
-            const data = await verifyToken(refreshTokenSecret, refreshToken);
-            if(data.user) {
-                
-                await redisClient.del(accessTokenId);
-                await redisClient.del(refreshTokenId);
+        if (refreshTokenSecret && accessTokenSecret) {
+            const isAccessToken = await removeToken(accessTokenSecret, accessTokenId);
+            const isRefreshToken = await removeToken(refreshTokenSecret, refreshTokenId);
+            if(isAccessToken && isRefreshToken) {
 
-                const tokens = await createToken(res, data.user._id.toString());
+                const tokens = await createToken(res, isRefreshToken._id.toString());
 
                 return {message: 'ok', code: 200, data: tokens}
             }else {
@@ -161,7 +157,7 @@ export const handleRefreshToken = async (
             }
                     
         } else {
-            return {message: 'Refresh Token existed!', code: 404};
+            return {message: 'Refresh Token not existed!', code: 404};
         }
     }catch(err) {
         console.error(err);

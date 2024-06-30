@@ -1,6 +1,6 @@
 import Category from "../model/categories.model";
 import { CategoryType, ImageType, UserType } from "../types";
-import { destroyClodinary } from "../utils/cloudinary";
+import { destroyClodinary } from "./cloudinary";
 
 export const getCategoryService = async () => {
   try{
