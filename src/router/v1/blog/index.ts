@@ -14,26 +14,15 @@ import { authentication } from '../../../middleware/auth.middleware'
 
 const router = express.Router();
 
-  // Post
 router.get('', getAllPost)
-router.get("/v1/api/posts-category", getPostByCategory);
-router.get(
-"/v1/api/posts-user",
-authentication,
-getPostByUser
-);
-router.get("/v1/api/search", searchPost);
-router.post("/v1/api/create-post", authentication, createPost);
-router.put(
-"/v1/api/update-post",
-authentication,
-updatePost
-);
-router.delete(
-"/v1/api/delete-post",
-authentication,
-deletePost
-);
-router.get("/v1/api/post", getPost);
+router.get("/category", getPostByCategory);
+router.get("/detail-blog", getPost);
+router.get("/search", searchPost);
+
+router.use(authentication);
+router.get("/user", getPostByUser);
+router.post("", authentication, createPost);
+router.put("", updatePost);
+router.delete("", deletePost);
 
 export default router;

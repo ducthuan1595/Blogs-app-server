@@ -14,7 +14,7 @@ const createLike = async (req: RequestCustom, res: Response) => {
             
         const data = await createLikedService(blogId, req);
         if(data) {
-            res.status(data.code).json({message: data.message, code: data.code})
+            res.status(data.code).json({message: data.message, code: data.code,  data: data?.data})
         }
     }catch(err) {
         res.status(500).json({message: 'Error from server', code: 500})
@@ -31,7 +31,7 @@ const removeLike = async (req: RequestCustom, res: Response) => {
         
         const data = await removeLikedService(blogId, req);
         if(data) {
-            res.status(data.code).json({message: data.message, code: data.code})
+            res.status(data.code).json({message: data.message, code: data.code,  data: data?.data})
         }
     }catch(err) {
         res.status(500).json({message: 'Error from server', code: 500})

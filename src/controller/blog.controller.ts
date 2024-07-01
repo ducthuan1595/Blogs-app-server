@@ -18,50 +18,53 @@ export const getAllPost = async(req: Request, res: Response) => {
   if(page && limit) {
     const data = await getPosts(+page, +limit);
     if(data) {
-      return res.status(data.status).json({message: data.message, data: data.data})
+      return res.status(data.code).json({message: data.message, data: data.data})
     }
   }
 }
 
 export const getPostByCategory = async(req: Request, res: Response) => {
-  const {categoryId, page, limit} = req.query;
-  if(!categoryId || !page || !limit) {
-    return res.status(400).json({message: 'Not found'})
+  const {categoryId, page = 1, limit = 4} = req.query;
+  if(!categoryId) {
+    return res.status(400).json({message: 'Not found', code: 400})
   }
-  const {status, message, data} = await getPostByCategoryService(+page, +limit, categoryId.toString());
-  return res.status(status).json({message, data})
+  const {code, message, data} = await getPostByCategoryService(+page, +limit, categoryId.toString());
+  return res.status(code).json({message, data})
 }
 
 export const getPostByUser = async(req:RequestCustom, res:Response) => {
   const {page = 1, limit = 4} = req.query;
-  if(req.user && page && limit) {
+  if(req.user) {
     const data = await getPostByUserService(+page, +limit ,req.user);
     if(data) {
-      return res.status(data.status).json({message: data.message, data: data.data})
+      return res.status(data.code).json({message: data.message, data: data.data});
     }
+  } else {
+    return res.status(403).json({message: 'Unauthorized', code: 403});
   }
 }
 
 export const getPost = async(req: Request, res: Response) => {
-  const postId = req.query.postId;  
+  const postId = req.query.blogId;  
+    
   if(!postId) {
-    return res.status(404).json({message: 'Not found'})
+    return res.status(404).json({message: 'Not found', code: 404})
   }
   const data = await getPostService(postId.toString());
   if(data) {
-    return res.status(data.status).json({message: data.message, data: data.data})
+    return res.status(data.code).json({message: data.message, data: data.data, code: data.code})
   }
 }
 
 export const updatePost = async (req: RequestCustom, res: Response) => {
   const request = req.body;
-  if(!request.postId || !request.desc || !request.title || !request.categoryId || !req.user) {
+  if(!request.blogId || !request.desc || !request.title || !request.categoryId || !req.user) {
     return res.status(404).json({message: 'Not found'})
   }
 
   const data = await updatePostService(request, req.user);
   if(data) {
-    return res.status(data.status).json({message: data.message})
+    return res.status(data.code).json({message: data.message, code: data.code})
   }
 };
 
@@ -78,28 +81,29 @@ export const createPost = async(req: RequestCustom, res: Response) => {
   }
   const data = await createPostService(request, req.user);
   if (data) {
-    return res.status(data.status).json({ message: data.message });
+    return res.status(data.code).json({ message: data.message, code: data.code });
   }
 }
 
 export const deletePost = async(req: RequestCustom, res: Response) => {
-  const postId = req.query.postId;
+  const postId = req.body.blogId;
+  
   if(!postId || !req.user) {
-    return res.status(404).json({message: 'Not found'})
+    return res.status(404).json({message: 'Not found', code: 403})
   }
   const data = await deletePostService(postId.toString(), req.user);
   if(data) {
-    return res.status(data.status).json({message: data.message})
+    return res.status(data.code).json({message: data.message, code: data.code})
   }
 }
 
 export const searchPost = async (req: Request, res: Response) => {
-  const search = req.query.search;
-  if(!search) {
+  const keyword = req.query.keyword;
+  if(!keyword) {
     return res.status(400).json({message: 'Not found'})
   }
-  const data = await searchPostService(search.toString());
+  const data = await searchPostService(keyword.toString());
   if(data) {
-    return res.status(data.status).json({message: data.message, data: data.data})
+    return res.status(data.code).json({message: data.message, data: data.data, code: data.code})
   }
 }

@@ -28,6 +28,7 @@ const authentication = async (
     const tokenId = req.cookies.access_token;
     const token = await redisClient.get(tokenId);
     const tokenSecret = process.env.JWT_SECRET_TOKEN;
+    
     if (tokenSecret && token) {
       
         const user: VerifyTokenResult = await verifyToken(tokenSecret, token);        
@@ -37,6 +38,8 @@ const authentication = async (
         req.user = user.user as UserType;
         next();
               
+    }else {
+        return res.status(404).json({message: 'Not found Token'})
     }
   } catch (err) {
     console.error(err);
@@ -51,10 +54,10 @@ const verifyToken = async (tokenSecret: string, token: string): Promise<VerifyTo
             const decoded = await new Promise<JwtPayload | null>((resolve, reject) => {
                 jwt.verify(token, tokenSecret, (err, data) => {
                     if (err) {
-                        console.log('verify token');
-                    reject(err);
+                      
+                      reject(err);
                     } else {
-                    resolve(data as JwtPayload);
+                      resolve(data as JwtPayload);
                     }
                 });
             });
@@ -69,6 +72,8 @@ const verifyToken = async (tokenSecret: string, token: string): Promise<VerifyTo
     
         return { user: null };
     } catch (err) {
+      console.log(err);
+
       return { user: null };
     }
   };

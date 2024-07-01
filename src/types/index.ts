@@ -1,12 +1,15 @@
+import { ObjectId } from "mongoose";
+
 export type PostType = {
-  _id: string;
+  _id: ObjectId;
   title: string;
   userId: UserType;
   categoryId: CategoryType | string;
-  description: string;
+  desc: string;
   image: ImageType[];
   createdAt: NativeDate;
   updatedAt: NativeDate;
+  totalLiked?: number;
 };
 
 export type UserType = {

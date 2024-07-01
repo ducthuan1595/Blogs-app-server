@@ -1,1 +1,54 @@
 GET http://localhost:5000/v1/api/blog
+
+###
+
+GET http://localhost:5000/v1/api/blog/category?page=1&limit=1&categoryId=656f5d92efffde113dfaf0b4
+
+###
+
+GET http://localhost:5000/v1/api/blog/user?page=1&limit=1&userId=656a088a9509b141c4f337bf
+
+###
+
+GET http://localhost:5000/v1/api/blog/detail-blog?blogId=6570bc0a43f5cf59036bc7f2
+
+###
+
+DELETE http://localhost:5000/v1/api/blog?blogId=657568de142a27b30e61d591
+Content-Type: application/json
+
+{
+    "blogId": "657488e5079d5c0499bd245c"
+}
+
+###
+GET http://localhost:5000/v1/api/category
+
+###
+
+POST http://localhost:5000/v1/api/blog
+Content-Type: application/json
+
+{
+    "userId": "667c1b2b5e09c6f2d55e06b2",
+    "title": "test1",
+    "desc": "test desc 1",
+    "categoryId": "656f5d92efffde113dfaf0b4",
+    "image": "image.png"
+}
+
+###
+
+PUT http://localhost:5000/v1/api/blog
+Content-Type: application/json
+
+{
+    "userId": "667c1b2b5e09c6f2d55e06b2",
+    "title": "test2",
+    "desc": "test desc 2",
+    "categoryId": "656f5d92efffde113dfaf0b4",
+    "blogId": "668295975773a2ed11a88ed9"
+}
+
+###
+GET http://localhost:5000/v1/api/blog/search?keyword=test1

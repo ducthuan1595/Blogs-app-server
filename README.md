@@ -30,6 +30,9 @@
  - Back-end:  Typescript, NodeJs(express)
  - Database: MongoD(mongoose), redis
 
-## FUTURE FEATURE
- - Like blog
- - Comment blog
+
+
+#### Start project:
+ - Run redis_cli command: `FT.CREATE blog_index PREFIX 1 blog: SCHEMA key_word TEXT`
+ - Install packages command: `npm init`
+ - Run project with command: `npm run dev`

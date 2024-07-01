@@ -6,6 +6,7 @@ import otpRouter from './otp';
 import commentRouter from './comment';
 import blogRouter from './blog';
 import likeRouter from './like';
+import categoryRouter from './category';
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ const router = express.Router();
 router.use('/auth', userRouter);
 router.use('/otp', otpRouter);
 router.use('/blog', blogRouter);
+router.use('/category', categoryRouter);
 router.use('/comment', commentRouter);
 router.use('/like', likeRouter);
 

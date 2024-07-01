@@ -52,8 +52,8 @@ export const logout = async (req: Request, res: Response) => {
 
 export const refreshToken = async (req: Request, res: Response) => {
     try{
-        const accessTokenId = req.cookies.refresh_token;
-        const refreshTokenId = req.cookies.access_token;
+        const refreshTokenId = req.cookies.refresh_token;
+        const accessTokenId = req.cookies.access_token;
 
         const data = await handleRefreshToken({res, accessTokenId, refreshTokenId});
         if(data) {

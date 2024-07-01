@@ -140,14 +140,14 @@ export const handleRefreshToken = async (
     {res, accessTokenId, refreshTokenId} :
     {res: Response, accessTokenId: string, refreshTokenId: string}
 ) => {
-    try{        
+    try{
         const refreshTokenSecret = process.env.JWT_SECRET_REFRESH_TOKEN;
         const accessTokenSecret = process.env.JWT_SECRET_TOKEN;
 
         if (refreshTokenSecret && accessTokenSecret) {
-            const isAccessToken = await removeToken(accessTokenSecret, accessTokenId);
             const isRefreshToken = await removeToken(refreshTokenSecret, refreshTokenId);
-            if(isAccessToken && isRefreshToken) {
+            const isAccessToken = await redisClient.del(accessTokenId);
+            if(isRefreshToken && isAccessToken) {
 
                 const tokens = await createToken(res, isRefreshToken._id.toString());
 

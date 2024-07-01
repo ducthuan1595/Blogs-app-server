@@ -5,14 +5,14 @@ import {
   getCategoryService,
   createCategoryService,
   deleteCategoryService,
-} from "../service/service.category";
+} from "../service/category.service";
 import dotenv from 'dotenv'
 import { RequestCustom } from '../middleware/auth.middleware';
 dotenv.config();
 
 export const getCategories = async(req: Request, res: Response) => {
-  const {status, message, data} = await getCategoryService();
-  res.status(status).json({message, data});
+  const {code, message, data} = await getCategoryService();
+  res.status(code).json({message, data});
 }
 
 export const updateCategory = async(req: RequestCustom, res: Response) => {
@@ -22,7 +22,7 @@ export const updateCategory = async(req: RequestCustom, res: Response) => {
   }
   const data = await editCategory(categoryId.toString(), name, image, slogan, req.user);
   if(data) {
-    return res.status(data.status).json({message: data.message, data: data?.data})
+    return res.status(data.code).json({message: data.message, data: data?.data})
   }
 }
 
@@ -33,7 +33,7 @@ export const createCategory = async (req: RequestCustom, res: Response) => {
   }
   const data = await createCategoryService(name, slogan, image, req.user);
   if(data) {
-    return res.status(data.status).json({message: data.message, data: data?.data})
+    return res.status(data.code).json({message: data.message, data: data?.data})
   }
 }
 
@@ -45,7 +45,7 @@ export const deleteCategory = async (req: RequestCustom, res: Response) => {
   const data = await deleteCategoryService(categoryId.toString(), req.user);
   if (data) {
     return res
-      .status(data.status)
+      .status(data.code)
       .json({ message: data.message });
   }
 };

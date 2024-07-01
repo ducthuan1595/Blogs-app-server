@@ -7,10 +7,12 @@ const createLikedService = async (blogId: string, req: RequestCustom) => {
         if(req.user) {            
             
             const isLike = await redisClient.sAdd(Object.values(blogId)[0], req.user._id.toString());
+
             if(isLike) {
                 return {
                     code: 201,
-                    message: 'ok'
+                    message: 'ok',
+                    data: await redisClient.sCard(Object.values(blogId)[0])
                 }
             }
             return {
@@ -32,7 +34,8 @@ const removeLikedService = async (blogId: string, req: RequestCustom) => {
             if(iSRemove) {
                 return {
                     code: 201,
-                    message: 'ok'
+                    message: 'ok',
+                    data: await redisClient.sCard(Object.values(blogId)[0])
                 }
             }
             return {
