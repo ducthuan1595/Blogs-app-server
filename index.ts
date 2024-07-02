@@ -5,7 +5,7 @@ import mongoose from './src/dbs/init.mongod';
 
 dotenv.config();
 
-const port = process.env.PORT;
+const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
   mongoose

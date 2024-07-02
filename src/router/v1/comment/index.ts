@@ -5,8 +5,10 @@ import { authentication } from '../../../middleware/auth.middleware'
 
 const router = express.Router();
 
-router.post('', authentication, createComment);
 router.get('', getComments);
-router.delete('', authentication, deleteComment);
+
+router.use(authentication);
+router.post('', createComment);
+router.delete('', deleteComment);
 
 export default router;

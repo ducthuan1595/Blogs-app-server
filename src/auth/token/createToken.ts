@@ -49,12 +49,12 @@ async function createToken (res:Response, userId:string) {
     
         res.cookie('access_token', access_token, {
             maxAge: 365 * 24 * 60 * 60 * 100,
-            httpOnly: true,
+            httpOnly: false,
             //secure: true;
         });
         res.cookie('refresh_token', refresh_token, {
             maxAge: 365 * 24 * 60 * 60 * 100,
-            httpOnly: true,
+            httpOnly: false,
             //secure: true;
         });
 

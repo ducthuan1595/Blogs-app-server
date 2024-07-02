@@ -18,14 +18,20 @@ const authentication = async (
   res: Response,
   next: NextFunction
 ) => {  
-  
-  if (!req.cookies.access_token) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  console.log('check token',req.headers.authorization);
+  let tokenId;
+  if (!req.cookies.access_token && !req.headers.authorization) {
+    return res.status(401).json({ message: 'Unauthorized', code: 401 });
+  }
+
+  if(req.cookies.access_token) {
+    tokenId = req.cookies.access_token;
+  }
+  if(req.headers.authorization) {
+    tokenId = req.headers.authorization.split(" ")[1];
   }
   
   try {
-    
-    const tokenId = req.cookies.access_token;
     const token = await redisClient.get(tokenId);
     const tokenSecret = process.env.JWT_SECRET_TOKEN;
     

@@ -5,7 +5,6 @@ import { createCommentValidate, deleteCommentValidate } from '../support/validat
 
 const createComment = async (req: Request, res: Response) => {
     try {
-        console.log('body comment' ,req.body);
         const {
             blogId,
             userId,
@@ -13,6 +12,7 @@ const createComment = async (req: Request, res: Response) => {
             parentCommentId = null,
         } = req.body;
         
+        console.log('body comment' ,typeof req.body.parentCommentId);
 
         const {error} = createCommentValidate(req.body);
         if(error) {
@@ -28,17 +28,17 @@ const createComment = async (req: Request, res: Response) => {
 }
 
 const getComments = async(req: Request, res: Response) => {
-    try{
+    try{ 
         const {
             blogId,
-            parentCommentId,
+            parentCommentId = null,
             limit = 50,
             offset = 0
         } = req.query;
         if(!blogId) {
             return res.status(400).json({message: 'Not found blog', code: 400})
         }
-
+        console.log(limit);
         const data = await getCommentsByParentId(blogId.toString(), parentCommentId?.toString(), +limit, +offset);
         if(data) {
             res.status(data.code).json({message: data.message, code: data.code, data: data?.data})

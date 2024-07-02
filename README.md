@@ -6,6 +6,7 @@
 - Manage Blogs
 - List Blog follow author
 - Manage Topic
+- Comment and like blog
 
 ## PROJECT STRUCTURE
 # client

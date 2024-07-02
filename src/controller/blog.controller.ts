@@ -86,7 +86,7 @@ export const createPost = async(req: RequestCustom, res: Response) => {
 }
 
 export const deletePost = async(req: RequestCustom, res: Response) => {
-  const postId = req.body.blogId;
+  const postId = req.body;
   
   if(!postId || !req.user) {
     return res.status(404).json({message: 'Not found', code: 403})

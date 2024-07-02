@@ -12,7 +12,7 @@ export const login = async (req: Request, res: Response) => {
 
     const data = await loginService({email, password, res});
     if(data) {
-        res.status(data.code).json({message: data.message, data: data?.data, code: data.code})
+        res.status(data.code).json({message: data.message, data: data?.data, code: data.code, tokens: data?.tokens})
     }
 };
 
