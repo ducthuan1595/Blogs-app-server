@@ -9,12 +9,14 @@ import {
     createPost,
     deletePost,
     searchPost,
+    getFavoriteBlog,
   } from "../../../controller/blog.controller";
 import { authentication } from '../../../middleware/auth.middleware'
 
 const router = express.Router();
 
-router.get('', getAllPost)
+router.get('', getAllPost);
+router.get('/favorite', getFavoriteBlog);
 router.get("/category", getPostByCategory);
 router.get("/detail-blog", getPost);
 router.get("/search", searchPost);

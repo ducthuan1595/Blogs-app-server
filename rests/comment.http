@@ -25,6 +25,10 @@ GET http://localhost:5000/v1/api/comment?blogId=6570bc0a43f5cf59036bc7f2
 
 ###
 
+GET http://localhost:5000/v1/api/comment/657488e5079d5c0499bd245c?blogId=657488e5079d5c0499bd245c
+
+###
+
 POST http://localhost:5000/v1/api/like
 Content-Type: application/json
 

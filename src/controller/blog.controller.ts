@@ -8,9 +8,10 @@ import {
   createPostService,
   deletePostService,
   searchPostService,
+  getFavoriteBlogService,
 } from "../service/blog.service";
 import { RequestCustom } from "../middleware/auth.middleware";
-import { PostType } from "../types";
+import { updateBlogValidate } from "../support/validation/blog.validate";
 
 export const getAllPost = async(req: Request, res: Response) => {
   
@@ -20,6 +21,18 @@ export const getAllPost = async(req: Request, res: Response) => {
     if(data) {
       return res.status(data.code).json({message: data.message, data: data.data})
     }
+  }
+}
+
+export const getFavoriteBlog = async(req: Request, res: Response) => {
+  try{
+    const data = await getFavoriteBlogService();
+    if(data) {
+      res.status(data.code).json({message: data.message, data: data?.data});
+    }
+  }catch(err) {
+    console.error(err);
+    
   }
 }
 
@@ -58,8 +71,13 @@ export const getPost = async(req: Request, res: Response) => {
 
 export const updatePost = async (req: RequestCustom, res: Response) => {
   const request = req.body;
-  if(!request.blogId || !request.desc || !request.title || !request.categoryId || !req.user) {
-    return res.status(404).json({message: 'Not found'})
+  const {error} = updateBlogValidate(req.body);
+  if(error) {
+    return res.status(404).json({message: error.details[0].message, code: 404})
+  }
+
+  if(!req.user) {
+    return res.status(404).json({message: 'Not found user', code: 404})
   }
 
   const data = await updatePostService(request, req.user);
@@ -86,12 +104,13 @@ export const createPost = async(req: RequestCustom, res: Response) => {
 }
 
 export const deletePost = async(req: RequestCustom, res: Response) => {
-  const postId = req.body;
+  const {blogId} = req.query;
+  console.log(req.body);
   
-  if(!postId || !req.user) {
+  if(!blogId || !req.user) {
     return res.status(404).json({message: 'Not found', code: 403})
   }
-  const data = await deletePostService(postId.toString(), req.user);
+  const data = await deletePostService(blogId.toString(), req.user);
   if(data) {
     return res.status(data.code).json({message: data.message, code: data.code})
   }

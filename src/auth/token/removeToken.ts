@@ -4,6 +4,7 @@ import { verifyToken } from "../../middleware/auth.middleware";
 export const removeToken = async(tokenSecret: string, tokenId: string) => {
     try {
         const token = await redisClient.get(tokenId);
+        
         if (tokenSecret && token) {
             
             let user = await verifyToken(tokenSecret, token);

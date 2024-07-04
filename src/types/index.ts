@@ -40,4 +40,12 @@ export type CategoryType = {
 export type ImageType = {
   url: string;
   public_id: string;
-}; 
+};
+
+export interface RequestPostType {
+  title: string;
+  desc: string;
+  postId?: string;
+  image: ImageType[];
+  categoryId: string;
+}

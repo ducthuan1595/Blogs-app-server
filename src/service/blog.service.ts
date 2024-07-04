@@ -2,18 +2,11 @@ import _Blog from '../model/blog.model';
 import _Category from '../model/categories.model';
 import _Permission from '../model/permission.model';
 import { pageSection } from '../support/pageSection';
-import { ImageType, PostType, UserType } from '../types';
+import { ImageType, PostType, UserType, RequestPostType } from '../types';
 import { destroyClodinary } from './cloudinary';
 import { redisClient } from '../dbs/init.redis';
-import { getTotalLikedOfBlog, insertRedisSearch } from '../utils/redis';
-
-interface RequestPostType {
-  title: string;
-  desc: string;
-  blogId?: string;
-  image: ImageType[];
-  categoryId: string;
-}
+import { getTotalLikedOfBlog, insertRedisListBlog, insertRedisSearch } from '../utils/redis';
+import { type_redis } from '../utils/constant';
 
 export const getPosts = async(page: number, limit:number) => {
   try{
@@ -30,7 +23,7 @@ export const getPosts = async(page: number, limit:number) => {
     const data = pageSection(page, limit, posts)
 
     return {
-    code: 201,
+    code: 200,
     message: "ok",
     data: {
         posts: data.result,
@@ -52,6 +45,30 @@ export const getPosts = async(page: number, limit:number) => {
   }
 }
 
+export const getFavoriteBlogService = async() => {
+  try{
+    const blogs = await redisClient.zRange(type_redis.BEST_LIST_BLOG, '0', '10000', {
+      BY: 'SCORE',
+      LIMIT: {
+        count: 2,
+        offset: 0
+      }
+    })
+           
+    return {
+      message: 'ok',
+      code: 200,
+      data: blogs
+    }
+  }catch(err) {
+    return {
+      code: 500,
+      message: 'Error from server',
+      data: [],
+    }
+  }
+}
+
 export const getPostByCategoryService = async(page:number, limit: number, categoryId: string) => {
   try{
     const posts: PostType[] = await _Blog.find({categoryId})
@@ -64,7 +81,7 @@ export const getPostByCategoryService = async(page:number, limit: number, catego
     
     const data = pageSection(page, limit, posts)
     return {
-      code: 201,
+      code: 200,
       message: "ok",
       data: {
         posts: data.result,
@@ -92,7 +109,7 @@ export const getPostByUserService = async (page: number, limit: number ,user: Us
     await getTotalLikedOfBlog(posts);
     const data = pageSection(page, limit, posts);
     return {
-      code: 201,
+      code: 200,
       message: "ok",
       data: {
         posts: data.result,
@@ -119,7 +136,7 @@ export const getPostService = async(postId: string) => {
     if(post) {
         post.totalLiked = await redisClient.sCard(postId) as number;
         return {
-          code: 201,
+          code: 200,
           message: 'ok',
           data: post
         }
@@ -134,16 +151,16 @@ export const getPostService = async(postId: string) => {
 
 export const updatePostService = async (request: RequestPostType, user: UserType) => {
   try {
-    const post: PostType | null | undefined = await _Blog.findById(request.blogId);
+    const post: PostType | null | undefined = await _Blog.findById(request.postId);
     if (post && post.userId?.toString() === user._id.toString()) {
         post.title = request.title;
         post.desc = request.desc;
         post.categoryId = request.categoryId;
         if(request.image && request.image.length) {
             for(let img of post.image) {
-            if(img && img.public_id) {
-                await destroyClodinary(img.public_id);
-            }
+              if(img && img.public_id) {
+                  await destroyClodinary(img.public_id);
+              }
             }
             post.image = request.image;
         }
@@ -171,15 +188,18 @@ export const createPostService = async(request: RequestPostType, user: UserType)
       title: request.title,
       desc: request.desc,
       userId: user._id,
-      // image: request.image,
+      image: request.image,
       categoryId: request.categoryId,
     });
     
     if(post) {
+      // add blog in engine search of redis
       await insertRedisSearch(post);
+      // add favorite blog in redis
+      await insertRedisListBlog(post);
   
       return {
-        code: 200,
+        code: 201,
         message: 'ok',
         data: post
       }
@@ -196,7 +216,6 @@ export const createPostService = async(request: RequestPostType, user: UserType)
 
 export const deletePostService = async(postId: string, user: UserType) => {
   try{
-    // const posts = await Post.deleteOne({_id: postId, userId: user._id});
     const post = await _Blog.findById(postId);
     const permit = await _Permission.findOne({userId: user._id});
     
@@ -207,6 +226,8 @@ export const deletePostService = async(postId: string, user: UserType) => {
             }
         }
         await _Blog.findByIdAndDelete(postId)
+        // delete blog in favorite blog redis
+        await redisClient.zRem(type_redis.BEST_LIST_BLOG, JSON.stringify(post));
         return {
             code: 200,
             message: 'ok'

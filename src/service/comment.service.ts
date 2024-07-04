@@ -85,20 +85,25 @@ const getCommentsByParentId = async(
             if(!parent) {
                 return {
                     message: 'Not found blog',
-                    code: 400
+                    code: 200,
+                    data: []
                 }
             }
             const comments = await _Comment.find({
                 blogId,
                 left: { $gt: parent.left },
                 right: { $lte: parent.right }
-            }).select({
+            }).populate('userId', '-password -roleId')
+            .select({
                 right: 1,
                 left: 1,
                 content: 1,
-                parentCommentId: 1
-            }).sort({
-                left: 1
+                parentCommentId: 1,
+                createdAt: 1,
+                _id: 1
+            })
+            .sort({
+                updatedAt: -1
             })
 
             return {
@@ -110,14 +115,20 @@ const getCommentsByParentId = async(
         const comments = await _Comment.find({
             blogId,
             parentCommentId
-        }).select({
+        }).populate('userId', '-password -roleId')
+        .select({
             right: 1,
             left: 1,
             content: 1,
-            parentCommentId: 1
-        }).sort({
-            left: 1
+            parentCommentId: 1,
+            createdAt: 1,
+            _id: 1
         })
+        .sort({
+            updatedAt: -1
+        })
+        .skip(limit * (offset - 1))
+        .limit(limit)
         return {
             message: 'ok',
             code: 200,
@@ -125,6 +136,19 @@ const getCommentsByParentId = async(
         }
     }catch(err) {
         console.error(err); 
+    }
+}
+
+const getLengthCommentByBlog = async (blogId: string) => {
+    try{
+        const length = await _Comment.countDocuments({blogId});
+        return {
+            message: 'ok',
+            code: 201,
+            data: length
+        }
+    }catch(err) {
+        console.error(err);
     }
 }
 
@@ -188,5 +212,6 @@ const deleteCommentService = async (blogId: string, commentId: string, req: Requ
 export {
     createCommentService,
     getCommentsByParentId,
-    deleteCommentService
+    deleteCommentService,
+    getLengthCommentByBlog
 }

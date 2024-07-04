@@ -109,16 +109,14 @@ export const registerServer = async (
     }
 }
 
-export const logoutService = async(req: Request, res: Response) => {
+export const logoutService = async(access_token: string, refresh_token: string) => {
     try {
-        let access_token = req.cookies.access_token;
-        let refresh_token = req.cookies.refresh_token;
         const accessTokenSecret = process.env.JWT_SECRET_TOKEN;
         const refreshTokenSecret = process.env.JWT_SECRET_REFRESH_TOKEN;
-        if(access_token && refresh_token && accessTokenSecret && refreshTokenSecret) {
+        if(accessTokenSecret && refreshTokenSecret) {
             const isAccessToken = await removeToken(accessTokenSecret, access_token);
             const isRefreshToken = await removeToken(refreshTokenSecret, refresh_token);
-
+            
             if (isAccessToken && isRefreshToken) {  
                 return {message: 'ok', code: 200}        
             } else {

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { createCommentService, getCommentsByParentId, deleteCommentService } from '../service/comment.service';
+import { createCommentService, getCommentsByParentId, deleteCommentService, getLengthCommentByBlog } from '../service/comment.service';
 import { createCommentValidate, deleteCommentValidate } from '../support/validation/comment.validate';
 
 const createComment = async (req: Request, res: Response) => {
@@ -68,8 +68,20 @@ const deleteComment = async(req: Request, res: Response) => {
     }
 }
 
+const getLengthComment = async(req: Request, res: Response) => {
+    const {blogId} = req.query;
+    if(!blogId) {
+        return res.status(404).json({message: 'Not found blog', code: 404})
+    }
+    const data = await getLengthCommentByBlog(blogId.toString());
+    if(data) {
+        res.status(data.code).json({message: data.message, data: data.data})
+    }
+}
+
 export {
     createComment,
     getComments,
-    deleteComment
+    deleteComment,
+    getLengthComment
 }

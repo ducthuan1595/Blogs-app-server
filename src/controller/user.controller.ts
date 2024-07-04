@@ -35,13 +35,20 @@ export const signup = async(req: Request, res: Response) => {
 
 export const logout = async (req: Request, res: Response) => {
     try{
+        // let access_token = req.cookies.access_token;
+        // let refresh_token = req.cookies.refresh_token;
+        let tokens = req.headers.authorization;
+        if(!tokens) {
+            return res.status(403).json({message: 'Not found'});
+        }
         
-        const tokenId = req.cookies.access_token;
-        
-        if(!tokenId) {
+        let access_token = tokens.split(" ")[1];
+        let refresh_token = tokens.split(" ")[2];
+             
+        if(!access_token || !refresh_token) {
             return res.status(403).json({message: 'Unauthorized', code : 403})
         }
-        const data = await logoutService(req, res);
+        const data = await logoutService(access_token, refresh_token);
         if(data) {
             res.status(data.code).json({message: data.message, code: data.code})
         }

@@ -52,3 +52,8 @@ Content-Type: application/json
 
 ###
 GET http://localhost:5000/v1/api/blog/search?keyword=test1
+
+###
+
+GET http://localhost:5000/v1/api/blog/favorite
+
