@@ -1,14 +1,13 @@
 import express from "express";
 
-import { likeToggle, getLikers } from "../../../controller/like.controller";
+import { pullNotify } from "../../../controller/notification.controller";
 import { authentication } from "../../../middleware/auth.middleware";
 
 const route = express.Router();
 
 route.use(authentication);
 
-route.post('', likeToggle);
-route.get('', getLikers);
+route.get('', pullNotify);
 
 
 export default route;

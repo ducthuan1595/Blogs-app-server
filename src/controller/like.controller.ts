@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { likedService } from '../service/like.service';
+import { getLikerService, likedService } from '../service/like.service';
 import { createLikeValidate } from '../support/validation/like.validate';
 import { RequestCustom } from '../middleware/auth.middleware';
 
@@ -21,6 +21,22 @@ const likeToggle = async (req: RequestCustom, res: Response) => {
     }
 }
 
+const getLikers = async (req: Request, res: Response) => {
+    try{
+        const {blogId} = req.query;
+        if(!blogId) {
+            return res.status(404).json({message: 'Not found', code: 404})
+        }
+        const data = await getLikerService(blogId.toString());
+        if(data) {
+            res.status(data.code).json({message: data.message, data: data?.data})
+        }
+    }catch(err) {
+        res.status(500).json({message: 'Error from server', code: 500})
+    }
+}
+
 export {
     likeToggle,
+    getLikers
 }

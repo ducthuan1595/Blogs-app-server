@@ -58,6 +58,8 @@ export const editCategory = async(categoryId: string, name:string, image: ImageT
 
 export const createCategoryService = async (name: string, slogan: string, image: ImageType, user: UserType) => {
   try {
+    console.log(user);
+    
     const permit = await _Permission.findOne({userId: user._id});
     if(!permit || (!permit.admin && !permit.moderator)) {
       return {

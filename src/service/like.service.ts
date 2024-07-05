@@ -1,13 +1,14 @@
 import { redisClient } from '../dbs/init.redis';
 import _Blog from '../model/blog.model';
 import { RequestCustom } from '../middleware/auth.middleware';
-import { type_redis } from '../utils/constant';
+import { type_notify, type_redis } from '../utils/constant';
+import { pushNotifyToSystem } from './notification.service';
 
 const likedService = async (blogId: string, req: RequestCustom) => {
     try{
         if(req.user) {                        
             const blog = await _Blog.findById(blogId);
-            if(blog) {
+            if(blog && blog.userId) {
                 const isLiked = await redisClient.sIsMember(blogId, JSON.stringify(req.user));
                 
                 if(isLiked) {
@@ -17,7 +18,17 @@ const likedService = async (blogId: string, req: RequestCustom) => {
                     await redisClient.sAdd(blogId, JSON.stringify(req.user));
                 }
 
-                await redisClient.zIncrBy(type_redis.BEST_LIST_BLOG, 1, JSON.stringify(blog))
+                await pushNotifyToSystem({
+                    type: type_notify.LIKE_TYPE,
+                    receiverId: blog.userId.toString(),
+                    senderId: req.user._id,
+                    options: {
+                        blogId: blogId,
+                        date: new Date().getTime(),
+                        blogTitle: blog.title
+                    }
+                })
+
                 return {
                     code: 201,
                     message: 'ok',
@@ -35,7 +46,22 @@ const likedService = async (blogId: string, req: RequestCustom) => {
     };
 }
 
+const getLikerService = async(blogId: string) => {
+    try{
+        const likers = await redisClient.sMembers(blogId);
+        if(likers) {
+            return {
+                message: 'ok',
+                code: 200,
+                data: likers
+            }
+        }
+    }catch(err) {
+        console.error(err);
+    }
+}
 
 export {
     likedService,
+    getLikerService
 }

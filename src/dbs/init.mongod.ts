@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 require('dotenv').config();
 
-mongoose.connect(process.env.DATABASE_URL!).then((_) => {
+mongoose.connect('mongodb://localhost:27017/blog_app').then((_) => {
     console.log('Connected mongoose success!!!');
 }).catch(err => console.error('Error connect::', err))
 

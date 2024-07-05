@@ -119,7 +119,7 @@ export const deletePost = async(req: RequestCustom, res: Response) => {
 export const searchPost = async (req: Request, res: Response) => {
   const keyword = req.query.keyword;
   if(!keyword) {
-    return res.status(400).json({message: 'Not found'})
+    return res.status(404).json({message: 'Not found', code: 404})
   }
   const data = await searchPostService(keyword.toString());
   if(data) {

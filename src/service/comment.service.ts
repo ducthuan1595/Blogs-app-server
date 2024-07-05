@@ -1,6 +1,8 @@
 import _Comment from '../model/comment.model';
 import _Blog from '../model/blog.model';
 import { RequestCustom } from '../middleware/auth.middleware';
+import { pushNotifyToSystem } from './notification.service';
+import { type_notify } from '../utils/constant';
 
 const createCommentService = async ({
     blogId,
@@ -14,7 +16,13 @@ const createCommentService = async ({
     parentCommentId: string | null;
 }) => {
     try{
-
+        const blog = await _Blog.findById(blogId);
+        if(!blog || !blog.userId) {
+            return {
+                message: 'Not found blog',
+                code: 404
+            }
+        }
         const comment = new _Comment({
             blogId,
             userId,
@@ -26,7 +34,7 @@ const createCommentService = async ({
 
         if(parentCommentId) {
             const parenComment = await _Comment.findById(parentCommentId);
-            if(!parenComment) {
+            if(!parenComment || !parenComment.userId) {
                 return {
                     code: 404,
                     message: 'Parent comment not found'
@@ -46,6 +54,16 @@ const createCommentService = async ({
             }, {
                 $inc: { left: 2 }
             })
+            await pushNotifyToSystem({
+                type: type_notify.REPLY_TYPE,
+                receiverId: parenComment.userId.toString(),
+                senderId: userId,
+                options: {
+                    blogId: blogId,
+                    date: new Date().getTime(),
+                    blogTitle: blog.title
+                }
+            })
         }else {
             const maxRightValue = await _Comment.findOne({
                 blogId
@@ -61,6 +79,17 @@ const createCommentService = async ({
         comment.right = rightValue + 1;
 
         await comment.save();
+
+        await pushNotifyToSystem({
+            type: type_notify.CONTENT_TYPE,
+            receiverId: blog.userId.toString(),
+            senderId: userId,
+            options: {
+                blogId: blogId,
+                date: new Date().getTime(),
+                blogTitle: blog.title
+            }
+        })
 
         return {
             code: 201,

@@ -47,14 +47,8 @@ export const getPosts = async(page: number, limit:number) => {
 
 export const getFavoriteBlogService = async() => {
   try{
-    const blogs = await redisClient.zRange(type_redis.BEST_LIST_BLOG, '0', '10000', {
-      BY: 'SCORE',
-      LIMIT: {
-        count: 2,
-        offset: 0
-      }
-    })
-           
+    const blogs = await redisClient.sRandMemberCount(type_redis.RANDOM_BLOG, 2);
+    
     return {
       message: 'ok',
       code: 200,
@@ -152,6 +146,7 @@ export const getPostService = async(postId: string) => {
 export const updatePostService = async (request: RequestPostType, user: UserType) => {
   try {
     const post: PostType | null | undefined = await _Blog.findById(request.postId);
+    await redisClient.sRem(type_redis.RANDOM_BLOG, JSON.stringify(post));
     if (post && post.userId?.toString() === user._id.toString()) {
         post.title = request.title;
         post.desc = request.desc;
@@ -166,7 +161,8 @@ export const updatePostService = async (request: RequestPostType, user: UserType
         }
       await (post as any).save();
       await insertRedisSearch(post);
-
+      await redisClient.sRem(type_redis.RANDOM_BLOG, JSON.stringify(post));
+      
       return {
         code: 201,
         message: "ok",
@@ -184,19 +180,29 @@ export const updatePostService = async (request: RequestPostType, user: UserType
 
 export const createPostService = async(request: RequestPostType, user: UserType) => {
   try{
-    const post = await _Blog.create({
+    const post = new _Blog({
       title: request.title,
       desc: request.desc,
       userId: user._id,
       image: request.image,
       categoryId: request.categoryId,
     });
+
+    const newPost = await (await post.save()).populate('userId', '-password');
     
-    if(post) {
+    if(newPost) {
       // add blog in engine search of redis
-      await insertRedisSearch(post);
+      await insertRedisSearch(newPost);
       // add favorite blog in redis
-      await insertRedisListBlog(post);
+      // await insertRedisListBlog(post);
+      const dataset = {
+        title: newPost.title,
+        desc: newPost.desc,
+        userId: newPost.userId,
+        image: newPost.image,
+        categoryId: newPost.categoryId
+      }
+      await redisClient.sAdd(type_redis.RANDOM_BLOG, JSON.stringify(dataset));
   
       return {
         code: 201,
@@ -216,7 +222,7 @@ export const createPostService = async(request: RequestPostType, user: UserType)
 
 export const deletePostService = async(postId: string, user: UserType) => {
   try{
-    const post = await _Blog.findById(postId);
+    const post = await _Blog.findById(postId).populate('userId', '-password');
     const permit = await _Permission.findOne({userId: user._id});
     
     if(post && permit && (post.userId?.toString() === user._id.toString() || permit.admin)) {
@@ -226,8 +232,18 @@ export const deletePostService = async(postId: string, user: UserType) => {
             }
         }
         await _Blog.findByIdAndDelete(postId)
+
+        let blogId = `blog:${postId.toString()}`;
+        await redisClient.del(blogId)
         // delete blog in favorite blog redis
-        await redisClient.zRem(type_redis.BEST_LIST_BLOG, JSON.stringify(post));
+        const dataset = {
+          title: post.title,
+          desc: post.desc,
+          userId: post.userId,
+          image: post.image,
+          categoryId: post.categoryId
+        }
+        await redisClient.sRem(type_redis.RANDOM_BLOG, JSON.stringify(dataset));
         return {
             code: 200,
             message: 'ok'
@@ -248,18 +264,6 @@ export const deletePostService = async(postId: string, user: UserType) => {
 
 export const searchPostService = async (keyword: string) => {
   try{
-    // const keyword = search ? {
-    //   $or: [
-    //     {
-    //       title: {
-    //         $regex: search,
-    //         $options: 'i'
-    //       }
-    //     }
-    //   ]
-    // } : {};
-
-    // const posts = await _Blog.find(keyword).populate('userId', '-password').populate('categoryId').limit(10).lean();
     const result = await redisClient.ft.search('blog_index', `%${keyword}%`)
   
     if(result) {
@@ -267,6 +271,11 @@ export const searchPostService = async (keyword: string) => {
         code: 201,
         message: 'ok',
         data: result
+      }
+    }else {
+      return {
+        code: 403,
+        message: 'Init engine search at redis command line.'
       }
     }
   }catch(err) {

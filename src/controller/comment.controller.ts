@@ -33,7 +33,7 @@ const getComments = async(req: Request, res: Response) => {
             blogId,
             parentCommentId = null,
             limit = 50,
-            offset = 0
+            offset = 1
         } = req.query;
         if(!blogId) {
             return res.status(400).json({message: 'Not found blog', code: 400})

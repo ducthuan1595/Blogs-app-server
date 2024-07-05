@@ -8,7 +8,7 @@ import { type_notify } from '../utils/constant';
 const schema = new Schema({
     notify_type: {
         type: String,
-        enum: [type_notify.BLOG_TYPE, type_notify.LIKE_TYPE, type_notify.CONTENT_TYPE],
+        enum: [type_notify.BLOG_TYPE, type_notify.LIKE_TYPE, type_notify.CONTENT_TYPE, type_notify.REPLY_TYPE],
     },
     notify_senderId: {
         type: Schema.Types.ObjectId,

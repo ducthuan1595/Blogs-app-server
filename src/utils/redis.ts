@@ -1,5 +1,6 @@
 import { PostType } from "../types";
 import { redisClient } from "../dbs/init.redis";
+import { type_redis } from "./constant";
 
 export const getTotalLikedOfBlog = async (posts: PostType[]) => {
     for(let i = 0; i < posts.length; i++) {
@@ -21,5 +22,5 @@ export const insertRedisSearch = async (post:any) => {
 export const insertRedisListBlog = async (post: any) => {
     let postId = post._id.toString();
     const totalLiked = await redisClient.sCard(postId) as number;
-    await redisClient.zAdd('favorite_blog', [{ score: totalLiked, value: JSON.stringify(post)}])
+    await redisClient.zAdd(type_redis.BEST_LIST_BLOG, [{ score: totalLiked, value: JSON.stringify(post)}])
 }

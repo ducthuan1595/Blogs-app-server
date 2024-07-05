@@ -7,6 +7,7 @@ import commentRouter from './comment';
 import blogRouter from './blog';
 import likeRouter from './like';
 import categoryRouter from './category';
+import notifyRouter from './notification';
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use('/blog', blogRouter);
 router.use('/category', categoryRouter);
 router.use('/comment', commentRouter);
 router.use('/like', likeRouter);
+router.use('/notify', notifyRouter);
 
 export default router;
