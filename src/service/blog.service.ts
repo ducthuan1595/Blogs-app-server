@@ -148,9 +148,11 @@ export const updatePostService = async (request: RequestPostType, user: UserType
     const post: PostType | null | undefined = await _Blog.findById(request.postId);
     if (post && post.userId?.toString() === user._id.toString()) {
       // get fields was saved in redis set random blog
-      let dataset = fieldsSetBlog(post)
+      let dataset = fieldsSetBlog(post);
+      let blogId = `blog:${post._id.toString()}`;
       // remove random blog redis
       await redisClient.sRem(type_redis.RANDOM_BLOG, JSON.stringify(dataset));
+      await redisClient.del(blogId);
         post.title = request.title;
         post.desc = request.desc;
         post.categoryId = request.categoryId;
@@ -256,13 +258,13 @@ export const deletePostService = async(postId: string, user: UserType) => {
 
 export const searchPostService = async (keyword: string) => {
   try{
-    const result = await redisClient.ft.search('blog_index', `%${keyword}%`)
+    const result = await redisClient.ft.search('blog_index', `${keyword}*`)
   
     if(result) {
       return {
         code: 201,
         message: 'ok',
-        data: result
+        data: result.documents
       }
     }else {
       return {

@@ -43,7 +43,7 @@ const pushNotifyToSystem = async({
 const pullNotifyFromClient = async(user: UserType, type: string) => {
     try{
         const match:any = {notify_receiverId: user._id};
-        match['notify_isReaded'] = false;
+        match['notify_unread'] = false;
         if(type !== 'ALL') {
             match['notify_type'] = type
         }
@@ -75,7 +75,7 @@ const pullNotifyFromClient = async(user: UserType, type: string) => {
                     }
                 }
             }
-        ])
+        ]).sort({createdAt: -1})
         
         return notifies;
     }catch(err) {
@@ -118,9 +118,23 @@ const getReadNotifyService = async (user: UserType, type: string) => {
                     }
                 }
             }
-        ])
+        ]).sort({createdAt: -1})
         
         return notifies;
+    }catch(err) {
+        console.error(err);
+    }
+}
+
+const convertNotifyRead = async (notifyId: string) => {
+    try{
+        const notify = await _Notification.findByIdAndUpdate(notifyId, {
+            notify_unread: true
+        }).sort({createdAt: -1});
+        return {
+            message: 'ok',
+            code: 200
+        }
     }catch(err) {
         console.error(err);
     }
@@ -129,5 +143,6 @@ const getReadNotifyService = async (user: UserType, type: string) => {
 export {
     pushNotifyToSystem,
     pullNotifyFromClient,
-    getReadNotifyService
+    getReadNotifyService,
+    convertNotifyRead
 }

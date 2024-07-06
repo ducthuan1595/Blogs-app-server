@@ -62,7 +62,8 @@ const createCommentService = async ({
                     options: {
                         blogId: blogId,
                         date: new Date().getTime(),
-                        blogTitle: blog.title
+                        blogTitle: blog.title,
+                        categoryId: blog.categoryId
                     }
                 })
             }
@@ -89,7 +90,8 @@ const createCommentService = async ({
             options: {
                 blogId: blogId,
                 date: new Date().getTime(),
-                blogTitle: blog.title
+                blogTitle: blog.title,
+                categoryId: blog.categoryId
             }
         })
 
@@ -131,11 +133,12 @@ const getCommentsByParentId = async(
                 content: 1,
                 parentCommentId: 1,
                 createdAt: 1,
-                _id: 1
+                _id: 1,
+                userId: 1
             })
             .sort({
                 updatedAt: -1
-            })
+            }).lean()
 
             return {
                 message: 'ok',
@@ -153,13 +156,15 @@ const getCommentsByParentId = async(
             content: 1,
             parentCommentId: 1,
             createdAt: 1,
-            _id: 1
+            _id: 1,
+            userId: 1
         })
         .sort({
             updatedAt: -1
         })
         .skip(limit * (offset - 1))
         .limit(limit)
+        .lean()
         return {
             message: 'ok',
             code: 200,

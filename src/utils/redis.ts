@@ -14,8 +14,16 @@ export const getTotalLikedOfBlog = async (posts: PostType[]) => {
 
 export const insertRedisSearch = async (post:any) => {
     let blogId = `blog:${post._id.toString()}`
+    const data = {
+        title: post.title,
+        desc: post.desc,
+        userId: post.userId,
+        image: post.image,
+        categoryId: post.categoryId,
+        _id: post._id
+    }
     await redisClient.hSet(blogId, 'key_word', post.title);
-    await redisClient.hSet(blogId, 'data', JSON.stringify(post));
+    await redisClient.hSet(blogId, 'data', JSON.stringify(data));
 }
 
 export const insertRedisListBlog = async (post: any) => {
