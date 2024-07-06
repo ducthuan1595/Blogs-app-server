@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { generateAvatar } from "../support/avatar";
 
 const schema = new mongoose.Schema({
   username: {
@@ -18,11 +19,12 @@ const schema = new mongoose.Schema({
     type: String,
     required: true
   },
-  photo: {
+  avatar: {
     url: {
       type: String
     },
-    public_id: String
+    public_id: String,
+    default: Buffer
   },
   status: {
     type: String,

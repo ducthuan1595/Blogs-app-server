@@ -21,7 +21,7 @@ export const getCategoryService = async () => {
   }
 }
 
-export const editCategory = async(categoryId: string, name:string, image: ImageType | undefined, slogan:string, user: UserType) => {
+export const editCategory = async(categoryId: string, name:string, image: ImageType | null, slogan:string, user: UserType) => {
   try{
     const permit = await _Permission.findOne({userId: user._id});
     if(!permit || (!permit.admin && !permit.moderator)) {

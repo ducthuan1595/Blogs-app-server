@@ -18,16 +18,18 @@ const likedService = async (blogId: string, req: RequestCustom) => {
                     await redisClient.sAdd(blogId, JSON.stringify(req.user));
                 }
 
-                await pushNotifyToSystem({
-                    type: type_notify.LIKE_TYPE,
-                    receiverId: blog.userId.toString(),
-                    senderId: req.user._id,
-                    options: {
-                        blogId: blogId,
-                        date: new Date().getTime(),
-                        blogTitle: blog.title
-                    }
-                })
+                if(req.user._id.toString() !== blog.userId.toString()) {
+                    await pushNotifyToSystem({
+                        type: type_notify.LIKE_TYPE,
+                        receiverId: blog.userId.toString(),
+                        senderId: req.user._id,
+                        options: {
+                            blogId: blogId,
+                            date: new Date().getTime(),
+                            blogTitle: blog.title
+                        }
+                    })
+                }
 
                 return {
                     code: 201,

@@ -20,6 +20,7 @@ export const login = async (req: Request, res: Response) => {
 export const signup = async(req: Request, res: Response) => {
     try{
         const {email, password, username} = req.body;
+        
         const {error} = signUpValidate(req.body);
         if(error) {
             return res.status(403).json({message: error.details[0].message, code: 403})

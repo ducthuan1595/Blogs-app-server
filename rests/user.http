@@ -15,9 +15,9 @@ POST http://localhost:5000/v1/api/auth/signup
 Content-Type: application/json
 
 {
-    "email": "thuantd@funix.edu.vn",
+    "email": "user02@gmail.com",
     "password": "123456789",
-    "username": "admin"
+    "username": "user02"
 }
 
 ###

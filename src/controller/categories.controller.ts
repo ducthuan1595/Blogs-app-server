@@ -16,7 +16,10 @@ export const getCategories = async(req: Request, res: Response) => {
 }
 
 export const updateCategory = async(req: RequestCustom, res: Response) => {
-  const {categoryId, name, image, slogan} = req.body;
+  let {categoryId, name, image , slogan} = req.body;
+  if(!image || !image.url || !image.public_id) {
+    image = null
+  }
   if(!categoryId || !req.user || !slogan || !name) {
     return res.status(400).json({message: 'Not found'})
   }

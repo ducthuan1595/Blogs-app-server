@@ -54,16 +54,18 @@ const createCommentService = async ({
             }, {
                 $inc: { left: 2 }
             })
-            await pushNotifyToSystem({
-                type: type_notify.REPLY_TYPE,
-                receiverId: parenComment.userId.toString(),
-                senderId: userId,
-                options: {
-                    blogId: blogId,
-                    date: new Date().getTime(),
-                    blogTitle: blog.title
-                }
-            })
+            if(userId.toString() !== parenComment.userId.toString()) {
+                await pushNotifyToSystem({
+                    type: type_notify.REPLY_TYPE,
+                    receiverId: parenComment.userId.toString(),
+                    senderId: userId,
+                    options: {
+                        blogId: blogId,
+                        date: new Date().getTime(),
+                        blogTitle: blog.title
+                    }
+                })
+            }
         }else {
             const maxRightValue = await _Comment.findOne({
                 blogId

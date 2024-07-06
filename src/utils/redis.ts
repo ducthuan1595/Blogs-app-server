@@ -18,9 +18,20 @@ export const insertRedisSearch = async (post:any) => {
     await redisClient.hSet(blogId, 'data', JSON.stringify(post));
 }
 
-
 export const insertRedisListBlog = async (post: any) => {
     let postId = post._id.toString();
     const totalLiked = await redisClient.sCard(postId) as number;
     await redisClient.zAdd(type_redis.BEST_LIST_BLOG, [{ score: totalLiked, value: JSON.stringify(post)}])
+}
+
+export const fieldsSetBlog = (post: PostType) => {
+    const dataset = {
+        title: post.title,
+        desc: post.desc,
+        userId: post.userId,
+        image: post.image,
+        categoryId: post.categoryId,
+        _id: post._id
+    }
+    return dataset;
 }

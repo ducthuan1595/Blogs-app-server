@@ -11,15 +11,24 @@ import { RequestCustom } from '../middleware/auth.middleware';
 import { redisClient } from '../dbs/init.redis';
 import { verifyToken } from '../middleware/auth.middleware';
 import { removeToken } from '../auth/token/removeToken';
+import { generateAvatar } from '../support/avatar';
+import { UserType } from '../types';
 
 export const loginService = async ({email, password, res}:{email:string, password:string, res: Response}) => {
     try{
-        const user = await _User.findOne({email: email}).populate('roleId', '-_id -userId').lean();
+        const user:UserType | null = await _User.findOne({email: email}).populate('roleId', '-_id -userId').lean();
         
         if(!user) {
             return {
                 code: 403,
                 message: 'User is not exist'
+            }
+        }
+        
+        if(!user.roleId || !user.roleId.user) {
+            return {
+                code: 403,
+                message: 'Please, confirm account'
             }
         }
         
@@ -38,7 +47,8 @@ export const loginService = async ({email, password, res}:{email:string, passwor
             username: user.username,
             email: user.email,
             roleId: user.roleId, 
-            _id: user._id
+            _id: user._id,
+            avatar: user.avatar
         }
     
         return {
@@ -62,6 +72,7 @@ export const registerServer = async (
     ) => {
     try{
         const user = await _User.findOne({email: email});
+        
         if(user) {
         return {
             code: 404,
@@ -70,11 +81,16 @@ export const registerServer = async (
         }
         const salt = await bcrypt.genSalt(10);
         const pw = await bcrypt.hash(password, salt);
+
         const newUser = new _User({
             username,
             email,
-            password: pw
+            password: pw,
+            avatar:{
+                default: generateAvatar(username)
+            }
         })
+
         const addUser = await newUser.save();
         if(addUser) {
             // create permission

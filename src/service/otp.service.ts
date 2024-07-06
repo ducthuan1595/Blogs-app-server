@@ -34,6 +34,13 @@ const verifyOtpService = async({email, otp, res}:{email: string, otp: string, re
                 const updatePermit = await _Permission.findOneAndUpdate({_id: user.roleId}, {user: true})
                 if(updatePermit){
                     user = await _User.findById(user._id).populate('roleId', '-_id -userId').select('-password');
+                    const data = {
+                        username: user.username,
+                        email: user.email,
+                        roleId: user.roleId, 
+                        _id: user._id,
+                        avatar: user.avatar
+                    }
         
                     const tokens = await createToken(res, user._id.toString())
                 
@@ -41,7 +48,7 @@ const verifyOtpService = async({email, otp, res}:{email: string, otp: string, re
                         code: 201,
                         message: 'ok',
                         data: {
-                            user,
+                            user: data,
                             tokens
                         },
                     }

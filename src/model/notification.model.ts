@@ -1,5 +1,6 @@
 import {Schema, model} from 'mongoose';
 import { type_notify } from '../utils/constant';
+import { boolean } from 'joi';
 
 // BLOG--001: create blog
 // LIKE--002: user likes
@@ -29,9 +30,14 @@ const schema = new Schema({
     notify_option: {
         type: Object,
         default: {}
+    },
+    notify_unread: {
+        type: Boolean,
+        default: false
     }
 }, {
-    collection: 'notifications'
+    collection: 'notifications',
+    timestamps: true
 })
 
 

@@ -16,14 +16,14 @@ export type UserType = {
   _id: string;
   username: string;
   email: string;
-  // password: string;
+  password: string;
   roleId: {
       user: Boolean,
       moderator: Boolean,
       admin: Boolean,
       guest: Boolean,
   };
-  photo: ImageType;
+  avatar: Buffer;
   createdAt?: NativeDate;
   updatedAt?: NativeDate;
 };

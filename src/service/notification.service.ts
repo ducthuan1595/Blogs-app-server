@@ -16,13 +16,13 @@ const pushNotifyToSystem = async({
     try{
         let notifyContent;
         if(type === type_notify.BLOG_TYPE) {
-            notifyContent = `@@@ just create a new blog @@@`
+            notifyContent = `just create a new blog`
         } else if (type === type_notify.LIKE_TYPE) {
-            notifyContent = `@@@ just like your blog @@@@`
+            notifyContent = `just like your blog`
         } else if(type === type_notify.CONTENT_TYPE) {
-            notifyContent = `@@@ just comment your blog @@@@@`
+            notifyContent = `just comment your blog`
         } else if(type === type_notify.REPLY_TYPE) {
-            notifyContent = `@@@ just reply your comment`
+            notifyContent = `just reply your comment`
         }
     
         const newNotify = await _Notification.create({
@@ -42,13 +42,23 @@ const pushNotifyToSystem = async({
 
 const pullNotifyFromClient = async(user: UserType, type: string) => {
     try{
-        const match:any = {notify_receiverId: user};
-        if(type === 'ALL') {
+        const match:any = {notify_receiverId: user._id};
+        match['notify_isReaded'] = false;
+        if(type !== 'ALL') {
             match['notify_type'] = type
         }
-        return await _Notification.aggregate([
+        
+        const notifies = await _Notification.aggregate([
             {
                 $match: match
+            },
+            {
+                $lookup: {
+                  from: 'users',
+                  localField: 'notify_senderId',
+                  foreignField: '_id',
+                  as: 'sender'
+                }
             },
             {
                 $project: {
@@ -57,10 +67,60 @@ const pullNotifyFromClient = async(user: UserType, type: string) => {
                     notify_receiverId: 1,
                     notify_content: 1,
                     createdAt: 1,
-                    notify_option: 1
+                    notify_option: 1,
+                    sender: {
+                        username: 1,
+                        email: 1,
+                        avatar: 1
+                    }
                 }
             }
         ])
+        
+        return notifies;
+    }catch(err) {
+        console.error(err);
+    }
+}
+
+const getReadNotifyService = async (user: UserType, type: string) => {
+    try{
+        const match:any = {notify_receiverId: user._id};
+        match['notify_unread'] = true;
+        if(type !== 'ALL') {
+            match['notify_type'] = type
+        }
+        
+        const notifies = await _Notification.aggregate([
+            {
+                $match: match
+            },
+            {
+                $lookup: {
+                  from: 'users',
+                  localField: 'notify_senderId',
+                  foreignField: '_id',
+                  as: 'sender'
+                }
+            },
+            {
+                $project: {
+                    notify_type: 1,
+                    notify_senderId: 1,
+                    notify_receiverId: 1,
+                    notify_content: 1,
+                    createdAt: 1,
+                    notify_option: 1,
+                    sender: {
+                        username: 1,
+                        email: 1,
+                        avatar: 1
+                    }
+                }
+            }
+        ])
+        
+        return notifies;
     }catch(err) {
         console.error(err);
     }
@@ -68,5 +128,6 @@ const pullNotifyFromClient = async(user: UserType, type: string) => {
 
 export {
     pushNotifyToSystem,
-    pullNotifyFromClient
+    pullNotifyFromClient,
+    getReadNotifyService
 }

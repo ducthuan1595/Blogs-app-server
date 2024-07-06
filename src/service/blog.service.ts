@@ -5,7 +5,7 @@ import { pageSection } from '../support/pageSection';
 import { ImageType, PostType, UserType, RequestPostType } from '../types';
 import { destroyClodinary } from './cloudinary';
 import { redisClient } from '../dbs/init.redis';
-import { getTotalLikedOfBlog, insertRedisListBlog, insertRedisSearch } from '../utils/redis';
+import { fieldsSetBlog, getTotalLikedOfBlog, insertRedisListBlog, insertRedisSearch } from '../utils/redis';
 import { type_redis } from '../utils/constant';
 
 export const getPosts = async(page: number, limit:number) => {
@@ -146,8 +146,11 @@ export const getPostService = async(postId: string) => {
 export const updatePostService = async (request: RequestPostType, user: UserType) => {
   try {
     const post: PostType | null | undefined = await _Blog.findById(request.postId);
-    await redisClient.sRem(type_redis.RANDOM_BLOG, JSON.stringify(post));
     if (post && post.userId?.toString() === user._id.toString()) {
+      // get fields was saved in redis set random blog
+      let dataset = fieldsSetBlog(post)
+      // remove random blog redis
+      await redisClient.sRem(type_redis.RANDOM_BLOG, JSON.stringify(dataset));
         post.title = request.title;
         post.desc = request.desc;
         post.categoryId = request.categoryId;
@@ -161,7 +164,8 @@ export const updatePostService = async (request: RequestPostType, user: UserType
         }
       await (post as any).save();
       await insertRedisSearch(post);
-      await redisClient.sRem(type_redis.RANDOM_BLOG, JSON.stringify(post));
+      dataset = fieldsSetBlog(post);
+      await redisClient.sAdd(type_redis.RANDOM_BLOG, JSON.stringify(dataset));
       
       return {
         code: 201,
@@ -188,20 +192,14 @@ export const createPostService = async(request: RequestPostType, user: UserType)
       categoryId: request.categoryId,
     });
 
-    const newPost = await (await post.save()).populate('userId', '-password');
+    const newPost: PostType = await (await post.save()).populate('userId', '-password');
     
     if(newPost) {
       // add blog in engine search of redis
       await insertRedisSearch(newPost);
       // add favorite blog in redis
       // await insertRedisListBlog(post);
-      const dataset = {
-        title: newPost.title,
-        desc: newPost.desc,
-        userId: newPost.userId,
-        image: newPost.image,
-        categoryId: newPost.categoryId
-      }
+      const dataset = fieldsSetBlog(newPost);
       await redisClient.sAdd(type_redis.RANDOM_BLOG, JSON.stringify(dataset));
   
       return {
@@ -222,7 +220,7 @@ export const createPostService = async(request: RequestPostType, user: UserType)
 
 export const deletePostService = async(postId: string, user: UserType) => {
   try{
-    const post = await _Blog.findById(postId).populate('userId', '-password');
+    const post: PostType | null = await _Blog.findById(postId).populate('userId', '-password');
     const permit = await _Permission.findOne({userId: user._id});
     
     if(post && permit && (post.userId?.toString() === user._id.toString() || permit.admin)) {
@@ -236,13 +234,7 @@ export const deletePostService = async(postId: string, user: UserType) => {
         let blogId = `blog:${postId.toString()}`;
         await redisClient.del(blogId)
         // delete blog in favorite blog redis
-        const dataset = {
-          title: post.title,
-          desc: post.desc,
-          userId: post.userId,
-          image: post.image,
-          categoryId: post.categoryId
-        }
+        const dataset = fieldsSetBlog(post)
         await redisClient.sRem(type_redis.RANDOM_BLOG, JSON.stringify(dataset));
         return {
             code: 200,
