@@ -14,17 +14,16 @@
  * Pages: 
   - Home: Overview Blog,
   - Category: List Blog follow the Topic
-  - Account: Info user and list blogs become user,
-  - Detail: Blog detail,
-  - Auth
+  - Account: Info user, list blogs become user and notifications,
+  - Detail: Blog detail, comment and like blog,
+  - Auth: login and signup check OTP code with email
 
-# Server
+# Admin
  * url: /system
  * Pages: 
    - Dashboard: List blogs,
    - Detail: Blog detail,
    - Manage: manage Categories,
-   - Auth
 
 ## MAIN TECHNOLOGY
  - Font-end: Typescript, Angular
