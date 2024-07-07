@@ -41,9 +41,10 @@ export const createCategory = async (req: RequestCustom, res: Response) => {
 }
 
 export const deleteCategory = async (req: RequestCustom, res: Response) => {
-  const categoryId = req.query.categoryId;
+  const {categoryId} = req.query;
+  
   if (!categoryId || !req.user) {
-    return res.status(400).json({ message: "Not found" });
+    return res.status(400).json({ message: "Not found category"});
   }
   const data = await deleteCategoryService(categoryId.toString(), req.user);
   if (data) {

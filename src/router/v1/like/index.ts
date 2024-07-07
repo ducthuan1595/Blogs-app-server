@@ -5,10 +5,10 @@ import { authentication } from "../../../middleware/auth.middleware";
 
 const route = express.Router();
 
+route.get('', getLikers);
 route.use(authentication);
 
 route.post('', likeToggle);
-route.get('', getLikers);
 
 
 export default route;

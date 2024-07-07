@@ -46,6 +46,6 @@ export interface RequestPostType {
   title: string;
   desc: string;
   postId?: string;
-  image: ImageType[];
+  image: ImageType;
   categoryId: string;
 }

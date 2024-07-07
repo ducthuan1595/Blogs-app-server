@@ -38,9 +38,18 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:5000/v1/api/like
+GET http://localhost:5000/v1/api/like?blogId=668973c22673bcbd4b344b63
+
+###
+
+POST http://localhost:5000/v1/api/view
 Content-Type: application/json
 
 {
-    "blogId": "6570bc0a43f5cf59036bc7f2"
+    "blogId": "668a6959d10f56ea27bb71cb"
 }
+
+
+###
+
+GET http://localhost:5000/v1/api/view?blogId=668a7e79dba016949e636e86

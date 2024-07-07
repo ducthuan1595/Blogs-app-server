@@ -14,7 +14,7 @@ async function createAccessToken(id: string) {
     let key = (parseInt(tokenCounter!) + 1).toString(); 
 
     const token = jwt.sign({id}, process.env.JWT_SECRET_TOKEN, {
-      expiresIn: '1d'
+      expiresIn: '7d'
     })
     // save token to redis store
     await redisClient.set(key, token);

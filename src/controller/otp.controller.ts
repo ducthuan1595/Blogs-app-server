@@ -7,7 +7,6 @@ import { verifyOtpValidate, sendAgainOtpValidate } from '../support/validation/o
 const verifyOtp = async(req: Request, res: Response) => {
     try{
         const {email, otp} = req.body;
-        console.log(req.body);
         
         const {error} = verifyOtpValidate(req.body);
         if(error) {

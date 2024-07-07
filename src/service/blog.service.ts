@@ -145,10 +145,11 @@ export const getPostService = async(postId: string) => {
 
 export const updatePostService = async (request: RequestPostType, user: UserType) => {
   try {
-    const post: PostType | null | undefined = await _Blog.findById(request.postId);
-    if (post && post.userId?.toString() === user._id.toString()) {
+    
+    const post: any = await _Blog.findById(request.postId).populate('userId', '-password');
+    if (post && post.userId._id.toString() === user._id.toString()) {
       // get fields was saved in redis set random blog
-      let dataset = fieldsSetBlog(post);
+      let dataset = fieldsSetBlog(post.toObject());
       let blogId = `blog:${post._id.toString()}`;
       // remove random blog redis
       await redisClient.sRem(type_redis.RANDOM_BLOG, JSON.stringify(dataset));
@@ -156,7 +157,7 @@ export const updatePostService = async (request: RequestPostType, user: UserType
         post.title = request.title;
         post.desc = request.desc;
         post.categoryId = request.categoryId;
-        if(request.image && request.image.length) {
+        if(request.image && request.image.url && request.image.public_id) {
             for(let img of post.image) {
               if(img && img.public_id) {
                   await destroyClodinary(img.public_id);
@@ -166,13 +167,18 @@ export const updatePostService = async (request: RequestPostType, user: UserType
         }
       await (post as any).save();
       await insertRedisSearch(post);
-      dataset = fieldsSetBlog(post);
+      dataset = fieldsSetBlog(post.toObject());
       await redisClient.sAdd(type_redis.RANDOM_BLOG, JSON.stringify(dataset));
       
       return {
         code: 201,
         message: "ok",
       };
+    }else {
+      return {
+        message: 'Unauthorized',
+        code: 403
+      }
     }
   } catch (err) {
     console.error(err);
@@ -194,20 +200,25 @@ export const createPostService = async(request: RequestPostType, user: UserType)
       categoryId: request.categoryId,
     });
 
-    const newPost: PostType = await (await post.save()).populate('userId', '-password');
+    const newPost = await post.save()
+    const blog: PostType | null = await _Blog.findById(newPost._id).populate('userId', '-password').lean()
     
-    if(newPost) {
+    if(blog) {
       // add blog in engine search of redis
-      await insertRedisSearch(newPost);
+      await insertRedisSearch(blog);
       // add favorite blog in redis
       // await insertRedisListBlog(post);
-      const dataset = fieldsSetBlog(newPost);
+      const dataset = fieldsSetBlog(blog);
       await redisClient.sAdd(type_redis.RANDOM_BLOG, JSON.stringify(dataset));
+
+      // init views
+      const viewId = `view:${blog._id}`;
+      await redisClient.set(viewId, 0);
   
       return {
         code: 201,
         message: 'ok',
-        data: post
+        data: blog
       }
     }
   }catch(err) {
@@ -222,10 +233,10 @@ export const createPostService = async(request: RequestPostType, user: UserType)
 
 export const deletePostService = async(postId: string, user: UserType) => {
   try{
-    const post: PostType | null = await _Blog.findById(postId).populate('userId', '-password');
+    const post: PostType | null = await _Blog.findById(postId).populate('userId', '-password').lean();
     const permit = await _Permission.findOne({userId: user._id});
     
-    if(post && permit && (post.userId?.toString() === user._id.toString() || permit.admin)) {
+    if(post && permit && (post.userId._id.toString() === user._id.toString() || permit.admin)) {
         for(let img of post.image) {
             if(img && img.public_id) {
             await destroyClodinary(img.public_id);
@@ -233,11 +244,14 @@ export const deletePostService = async(postId: string, user: UserType) => {
         }
         await _Blog.findByIdAndDelete(postId)
 
-        let blogId = `blog:${postId.toString()}`;
-        await redisClient.del(blogId)
+        const viewId = `view:${post._id}`;
+        await redisClient.del(viewId)
         // delete blog in favorite blog redis
         const dataset = fieldsSetBlog(post)
         await redisClient.sRem(type_redis.RANDOM_BLOG, JSON.stringify(dataset));
+
+        let blogId = `blog:${postId.toString()}`;
+        await redisClient.del(blogId);
         return {
             code: 200,
             message: 'ok'

@@ -76,6 +76,19 @@ const createCommentService = async ({
             }else {
                 rightValue = 1
             }
+            if(userId.toString() !== blog.userId.toString()) {
+                await pushNotifyToSystem({
+                    type: type_notify.CONTENT_TYPE,
+                    receiverId: blog.userId.toString(),
+                    senderId: userId,
+                    options: {
+                        blogId: blogId,
+                        date: new Date().getTime(),
+                        blogTitle: blog.title,
+                        categoryId: blog.categoryId
+                    }
+                })
+            }
         }
 
         comment.left = rightValue;
@@ -83,17 +96,6 @@ const createCommentService = async ({
 
         await comment.save();
 
-        await pushNotifyToSystem({
-            type: type_notify.CONTENT_TYPE,
-            receiverId: blog.userId.toString(),
-            senderId: userId,
-            options: {
-                blogId: blogId,
-                date: new Date().getTime(),
-                blogTitle: blog.title,
-                categoryId: blog.categoryId
-            }
-        })
 
         return {
             code: 201,
